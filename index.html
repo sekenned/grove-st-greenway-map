@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grove Street Greenway — Impact Map</title>
+  <meta name="description" content="How a protected Grove Street Greenway connects Montclair residents to schools, transit, and parks — with bikeable routes and time estimates." />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Turf.js -->
+  <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%232e7d32'/%3E%3Cpath d='M16 40 L32 16 L48 40' fill='none' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+
+  <style>
+    :root{
+      --bg:#ffffff; --ink:#1f2937; --muted:#6b7280; --accent:#2e7d32; --accent-weak:#e7f3e7;
+      --card:#ffffff; --surface:#f6f7f9; --border:#e5e7eb; --radius:12px; --shadow:0 6px 18px rgba(0,0,0,.07);
+      --font:"Roboto", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, "Noto Sans", sans-serif;
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5;-webkit-font-smoothing:antialiased}
+    a{color:#1f6e2b;text-decoration:none} a:hover{text-decoration:underline}
+
+    header{padding:18px clamp(16px,4vw,28px);border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between}
+    header h1{margin:0;font-weight:700;font-size:clamp(18px,3vw,22px)}
+    .badge{font-size:.78rem;font-weight:700;color:var(--accent);background:var(--accent-weak);border:1px solid #cfe8cf;padding:.2rem .5rem;border-radius:999px;margin-left:.6ch}
+
+    main{padding:clamp(12px,2.8vw,24px);display:grid;gap:12px}
+    #map{width:100%;min-height:68vh;height:clamp(520px,72vh,860px);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+    .controls-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+    .toggles{display:flex;flex-wrap:wrap;gap:14px}
+    .toggle{display:flex;align-items:center;gap:8px}
+    .toggle input{accent-color:var(--accent)}
+    .legend-dot{width:12px;height:12px;border-radius:999px;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15);display:inline-block}
+    .btn{appearance:none;border:1px solid var(--border);background:#fff;padding:.55rem .8rem;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn:hover{border-color:#cfd6df}
+    .small{font-size:.87rem;color:var(--muted)}
+    .attr{font-size:.85rem;color:var(--muted)}
+
+    .overlay{position:fixed;inset:0;background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:center;z-index:2000;padding:24px;text-align:center}
+    .overlay .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:18px 18px 14px;max-width:720px}
+    .progress{height:6px;background:var(--surface);border-radius:999px;overflow:hidden;margin-top:12px}
+    .bar{height:100%;width:12%;background:linear-gradient(90deg,var(--accent),#1a9b4b);transition:width .4s ease}
+    .error{color:#b91c1c;font-weight:700} .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.9rem}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Grove Street Greenway <span class="badge">Impact Map</span></h1>
+    <div class="small">No API keys • Live OpenStreetMap data</div>
+  </header>
+
+  <main>
+    <section aria-label="Map">
+      <div id="map"></div>
+      <div class="attr" style="margin-top:8px">
+        Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+        OpenStreetMap contributors</a> • Tiles © OSM • Routing & distance by <a href="https://turfjs.org/" target="_blank" rel="noreferrer">Turf.js</a>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Map options">
+      <div class="controls-row" style="margin-bottom:8px">
+        <div class="toggles" id="layerToggles">
+          <label class="toggle"><input type="checkbox" data-layer="schools" checked><span class="legend-dot" style="background:#2563eb"></span>Schools</label>
+          <label class="toggle"><input type="checkbox" data-layer="transit" checked><span class="legend-dot" style="background:#7c3aed"></span>Transit</label>
+          <label class="toggle"><input type="checkbox" data-layer="parks"><span class="legend-dot" style="background:#059669"></span>Parks</label>
+          <label class="toggle"><input type="checkbox" data-layer="greenway" checked><span class="legend-dot" style="background:#2e7d32"></span>Greenway</label>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="focusGroveBtn" type="button">Grove Focus</button>
+        </div>
+      </div>
+      <div class="small" id="summary"></div>
+      <div class="small" style="margin-top:6px">Each marker shows a <strong>bikeable path</strong> from the Greenway plus an <strong>estimated ride time</strong> (~10 mph).</div>
+    </section>
+  </main>
+
+  <div id="overlay" class="overlay" aria-live="polite">
+    <div class="card">
+      <div id="status" class="mono">Running pre-flight checks…</div>
+      <div class="progress"><div id="bar" class="bar"></div></div>
+      <div class="small" style="margin-top:8px">We verify data, math, and routing before showing the map.</div>
+    </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  /* ----------------------------- CONFIG ------------------------------ */
+  const CONFIG = {
+    bbox: { s: 40.795, w: -74.235, n: 40.855, e: -74.185 },
+    overpassEndpoints: [
+      "https://overpass-api.de/api/interpreter",
+      "https://overpass.kumi.systems/api/interpreter",
+      "https://overpass.openstreetmap.ru/api/interpreter"
+    ],
+    tiles: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    colors: { greenway:"#2e7d32", schools:"#2563eb", transit:"#7c3aed", parks:"#059669" },
+    metersPerMinuteBike: 16093.44 / 60,
+    excludeHighways: new Set(["motorway","motorway_link","trunk","trunk_link"]),
+    focusFill: 0.92,
+    transitAllowList: ["Bay Street","Walnut Street","Watchung Avenue","Mountain Avenue","Upper Montclair"],
+    schoolBlockList: ["Southwest School"]
+  };
+
+  /* ----------------------------- HELPERS ----------------------------- */
+  const $ = (id) => document.getElementById(id);
+  function bboxString(bb){ return `${bb.s},${bb.w},${bb.n},${bb.e}`; }
+  function updateStatus(text,pct){ const s=$('status'); if(s) s.textContent = text; const bar=$('bar'); if(typeof pct==="number"&&bar){ bar.style.width=Math.max(6,Math.min(100,pct))+'%'; } }
+  const toKey=(lat,lon)=>`${lat.toFixed(6)},${lon.toFixed(6)}`;
+  function haversineMeters(a,b){
+    const R=6371000,toRad=d=>d*Math.PI/180;
+    const dLat=toRad(b.lat-a.lat), dLon=toRad(b.lon-a.lon);
+    const la1=toRad(a.lat), la2=toRad(b.lat);
+    const x=Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;
+    return 2*R*Math.asin(Math.sqrt(x));
+  }
+
+  /* ---------------------------- OVERPASS ----------------------------- */
+  async function overpassFetch(query, attempt=0){
+    const endpoint=CONFIG.overpassEndpoints[attempt];
+    if(!endpoint) throw new Error("All Overpass endpoints failed");
+    try{
+      const res=await fetch(endpoint,{method:'POST',body:new URLSearchParams({data:query})});
+      if(!res.ok) throw new Error(`Overpass ${attempt+1} HTTP ${res.status}`);
+      return await res.json();
+    }catch(e){
+      await new Promise(r=>setTimeout(r, 200+Math.random()*300));
+      return overpassFetch(query, attempt+1);
+    }
+  }
+  function areaDef(){ return `area["name"~"^Montclair( Township)?$"]["boundary"="administrative"]["admin_level"~"7|8"](${bboxString(CONFIG.bbox)})->.a;`; }
+  const qGroveLine = ()=>`[out:json][timeout:30];way["highway"]["name"="Grove Street"](${bboxString(CONFIG.bbox)});out tags geom;`;
+  const qBikeableWays = ()=>`[out:json][timeout:60];way["highway"](${bboxString(CONFIG.bbox)});out tags geom;`;
+  const qSchoolsArea = ()=>`[out:json][timeout:30];${areaDef()}(node["amenity"="school"](area.a);way["amenity"="school"](area.a);relation["amenity"="school"](area.a););out center;`;
+  const qTransitArea = ()=>`[out:json][timeout:30];${areaDef()}(node["railway"~"station|halt"](area.a);way["railway"~"station|halt"](area.a);relation["railway"~"station|halt"](area.a););out center;`;
+  const qParksArea = ()=>`[out:json][timeout:30];${areaDef()}(node["leisure"="park"](area.a);way["leisure"="park"](area.a);relation["leisure"="park"](area.a););out center;`;
+  // Fetch full geometry of Eagle Rock Reservation (any tagging that’s used in OSM)
+  const qEagleRockGeom = ()=>`
+    [out:json][timeout:60];
+    (
+      relation["name"="Eagle Rock Reservation"]["type"="multipolygon"](${bboxString(CONFIG.bbox)});
+      relation["name"="Eagle Rock Reservation"]["boundary"~"protected_area|administrative"](${bboxString(CONFIG.bbox)});
+      way["name"="Eagle Rock Reservation"]["leisure"="nature_reserve"](${bboxString(CONFIG.bbox)});
+      way["name"="Eagle Rock Reservation"]["boundary"~"protected_area|administrative"](${bboxString(CONFIG.bbox)});
+    );
+    out geom;
+  `;
+
+  /* ---------------------------- FETCH ALL ---------------------------- */
+  async function fetchAll(){
+    updateStatus("Fetching Grove St geometry…",12);
+    const groveJson = await overpassFetch(qGroveLine());
+
+    updateStatus("Fetching Montclair POIs…",28);
+    const [schoolsJson, transitJson, parksJson] = await Promise.all([
+      overpassFetch(qSchoolsArea()),
+      overpassFetch(qTransitArea()),
+      overpassFetch(qParksArea())
+    ]);
+
+    updateStatus("Fetching Eagle Rock boundary…",40);
+    const erGeomJson = await overpassFetch(qEagleRockGeom());
+    const erPoly = buildReservationPolygon(erGeomJson.elements||[]);
+
+    updateStatus("Fetching street/path network…",56);
+    const waysJson = await overpassFetch(qBikeableWays());
+
+    const groveSegments = (groveJson.elements||[]).filter(e=>e.type==="way"&&Array.isArray(e.geometry));
+    const groveLines = groveSegments.map(w => turf.lineString(w.geometry.map(g=>[g.lon,g.lat])));
+
+    const mapCentroid=(e)=>({lat:e.lat||e.center?.lat, lon:e.lon||e.center?.lon});
+    // Schools: Montclair-only, drop Southwest School
+    const schoolBlock = CONFIG.schoolBlockList.map(s=>s.toLowerCase());
+    const schools=(schoolsJson.elements||[]).map(e=>({ name:e.tags?.name||"School", ...mapCentroid(e), tags:e.tags||{} }))
+      .filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon))
+      .filter(p=> !schoolBlock.some(b => (p.name||"").toLowerCase().includes(b)) );
+
+    // Transit: allow-list only
+    const stationAllow = CONFIG.transitAllowList.map(s=>s.toLowerCase());
+    const transitAll=(transitJson.elements||[]).map(e=>({ name:e.tags?.name||"Rail station", ...mapCentroid(e), tags:e.tags||{} }))
+      .filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon));
+    const transit = transitAll.filter(t=> stationAllow.some(s => (t.name||"").toLowerCase().includes(s)) );
+
+    const parks=(parksJson.elements||[]).map(e=>({ name:e.tags?.name||"Park", ...mapCentroid(e), tags:e.tags||{} }))
+      .filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon));
+
+    const graph = buildGraph(waysJson.elements||[], erPoly);
+    const groveStartKeys = buildGroveStartNodes(graph, groveSegments);
+
+    const groveLatLngs = [];
+    for(const w of groveSegments){ for(const g of w.geometry){ groveLatLngs.push(L.latLng(g.lat,g.lon)); } }
+
+    return { groveSegments, groveLines, groveLatLngs, schools, transit, parks, graph, groveStartKeys, erPoly };
+  }
+
+  /* --------------------- POLYGON + GRAPH / ROUTER -------------------- */
+  function buildReservationPolygon(elements){
+    // Convert any way/relation with 'geom' into a (Multi)Polygon for Turf
+    const polys=[];
+    for(const e of elements){
+      const coords = (e.geometry||[]).map(g=>[g.lon,g.lat]);
+      if(!coords.length) continue;
+      // Overpass 'geom' for a closed way is a ring; for relations, we might get multiple rings.
+      if(coords.length>2 && coords[0][0]===coords[coords.length-1][0] && coords[0][1]===coords[coords.length-1][1]){
+        polys.push([coords]); // single ring polygon
+      }
+    }
+    if(!polys.length) return null;
+    return (polys.length===1) ? turf.polygon(polys[0]) : turf.multiPolygon(polys);
+  }
+
+  function isBikeableWay(tags){
+    const h=tags?.highway; if(!h) return false;
+    if(CONFIG.excludeHighways.has(h)) return false;
+    if(tags?.motor_vehicle==="no" || tags?.access==="private") return false;
+    if(h==="footway" && tags?.bicycle==="no") return false;
+    return true;
+  }
+
+  function buildGraph(elements, forbiddenPoly){
+    const nodes=new Map(), adj=new Map();
+    function addNode(lat,lon){ const k=toKey(lat,lon); if(!nodes.has(k)) nodes.set(k,{lat,lon,key:k}); if(!adj.has(k)) adj.set(k,[]); return k; }
+    function addEdge(a,b,w){ adj.get(a).push({to:b,w}); adj.get(b).push({to:a,w}); }
+
+    for(const e of elements){
+      if(e.type!=="way"||!Array.isArray(e.geometry)) continue;
+      if(!isBikeableWay(e.tags||{})) continue;
+      const pts=e.geometry.map(g=>({lat:g.lat,lon:g.lon}));
+      for(let i=0;i<pts.length-1;i++){
+        const a=pts[i], b=pts[i+1];
+        // If edge intersects Eagle Rock polygon, skip it
+        if(forbiddenPoly){
+          const seg = turf.lineString([[a.lon,a.lat],[b.lon,b.lat]]);
+          if(turf.booleanIntersects(seg, forbiddenPoly)) continue;
+        }
+        const aKey=addNode(a.lat,a.lon), bKey=addNode(b.lat,b.lon);
+        const w=haversineMeters(a,b);
+        if(Number.isFinite(w)&&w>0.1) addEdge(aKey,bKey,w);
+      }
+    }
+    const nodesArr=Array.from(nodes.values());
+    return { nodes, nodesArr, adj };
+  }
+
+  function buildGroveStartNodes(graph, groveSegments){
+    const s=new Set();
+    for(const w of groveSegments){ for(const g of w.geometry){ const k=toKey(g.lat,g.lon); if(graph.nodes.has(k)) s.add(k); } }
+    if(s.size<8){
+      for(const w of groveSegments){
+        for(const g of w.geometry){
+          let best=null, bestD=Infinity;
+          for(const n of graph.nodes.values()){
+            const d=haversineMeters({lat:g.lat,lon:g.lon}, n);
+            if(d<bestD){bestD=d;best=n;}
+          }
+          if(best && bestD<=20) s.add(best.key);
+        }
+      }
+    }
+    return Array.from(s);
+  }
+
+  function shortestPath(graph, startKey, endKey){
+    if(!graph.adj.has(startKey)||!graph.adj.has(endKey)) return null;
+    const dist=new Map([[startKey,0]]), prev=new Map(), heap=[];
+    function push(node,d){ heap.push({node,d}); up(heap.length-1); }
+    function up(i){ while(i>0){ const p=(i-1)>>1; if(heap[p].d<=heap[i].d) break; [heap[p],heap[i]]=[heap[i],heap[p]]; i=p; } }
+    function down(i){ const n=heap.length; for(;;){ let l=i*2+1,r=l+1,s=i; if(l<n&&heap[l].d<heap[s].d)s=l; if(r<n&&heap[r].d<heap[s].d)s=r; if(s===i)break; [heap[i],heap[s]]=[heap[s],heap[i]]; i=s; } }
+    function pop(){ if(!heap.length) return null; const t=heap[0]; const e=heap.pop(); if(heap.length){ heap[0]=e; down(0);} return t; }
+    push(startKey,0);
+    while(heap.length){
+      const {node:u,d}=pop(); if(u===endKey) break; if(d!==dist.get(u)) continue;
+      for(const {to,w} of (graph.adj.get(u)||[])){
+        const nd=d+w; if(nd<(dist.get(to)??Infinity)){ dist.set(to,nd); prev.set(to,u); push(to,nd); }
+      }
+    }
+    if(!dist.has(endKey)) return null;
+    const pathKeys=[]; let cur=endKey;
+    while(cur!==undefined){ pathKeys.push(cur); if(cur===startKey) break; cur=prev.get(cur); }
+    pathKeys.reverse(); if(pathKeys[0]!==startKey) return null;
+    return { pathKeys, meters: dist.get(endKey) };
+  }
+
+  function buildRoutePolyline(graph, pathKeys){ return pathKeys.map(k=>[graph.nodes.get(k).lat, graph.nodes.get(k).lon]); }
+
+  function nearestNodeKey(lat,lon, nodesArr){
+    let best=null,bestD=Infinity;
+    const cos=Math.cos(lat*Math.PI/180), kx=111320*cos, ky=111320;
+    for(const n of nodesArr){
+      const dx=(n.lon-lon)*kx, dy=(n.lat-lat)*ky; const d2=dx*dx+dy*dy;
+      if(d2<bestD){bestD=d2;best=n;}
+    }
+    return best?.key||null;
+  }
+
+  function computeRouteFromGreenway(graph, groveStartKeys, lat, lon){
+    if(!groveStartKeys.length) return null;
+    const endKey=nearestNodeKey(lat,lon, graph.nodesArr); if(!endKey) return null;
+    let bestStart=null,bestD=Infinity;
+    for(const gk of groveStartKeys){
+      const nd=graph.nodes.get(gk);
+      const d=haversineMeters({lat,lon}, nd);
+      if(d<bestD){bestD=d;bestStart=gk;}
+    }
+    if(!bestStart) return null;
+    return shortestPath(graph,bestStart,endKey);
+  }
+
+  /* ------------------------------- TESTS ----------------------------- */
+  function assert(c,m){ if(!c) throw new Error(m); }
+  function runTestsLibs(){
+    assert(typeof L!=="undefined"&&L.map,"Leaflet failed to load");
+    assert(typeof turf!=="undefined"&&turf.distance,"Turf failed to load");
+    const accent=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    assert(/^#?[0-9a-fA-F]{3,8}$/.test(accent),"Theme color missing");
+  }
+  function runTestsData(data){
+    const {groveSegments,groveLines,schools,transit,parks,graph,groveStartKeys}=data;
+    assert(groveSegments.length>0,"No Grove St segments found");
+    assert(Array.isArray(groveLines)&&groveLines.length>0,"Grove lines malformed");
+    assert(graph?.nodes?.size>1000 && graph?.adj?.size>1000,"Street/path network too small");
+    assert(groveStartKeys.length>0,"No usable Greenway start nodes");
+    assert(schools.length>0,"No Montclair schools found");
+    assert(transit.length>0,"No Montclair rail stations found");
+    assert(parks.length>0,"No Montclair parks found");
+    const s=schools[0]; const sample=computeRouteFromGreenway(graph, groveStartKeys, s.lat, s.lon);
+    assert(sample && Number.isFinite(sample.meters) && sample.meters>0,"Sample route failed");
+  }
+  function summarize(data){
+    const s=`${data.schools.length} schools • ${data.transit.length} stations • ${data.parks.length} parks (Montclair)`;
+    const el=$('summary'); if(el) el.textContent=s;
+  }
+
+  /* ------------------------------- MAP UI ---------------------------- */
+  let map, groups={}, groveBounds, globalData;
+
+  function circleStyle(color){ return { radius:7, fillColor:color, color:"#fff", weight:1.5, opacity:1, fillOpacity:.95 }; }
+  function routeStyle(color){ return { color, weight:3, opacity:.9, lineJoin:'round' }; }
+  function nearestPointOnAnyLine(lat,lon,lineStrings){
+    let best=[lon,lat],bestD=Infinity;
+    for(const ls of lineStrings){ for(const c of ls.geometry.coordinates){ const d=(c[0]-lon)*(c[0]-lon)+(c[1]-lat)*(c[1]-lat); if(d<bestD){bestD=d;best=c;} } }
+    return best;
+  }
+  function fmtMi(m){ return (m/1609.344).toFixed(2); }
+  function fmtMin(min){ return Math.round(min); }
+
+  // Renderer with fallback policy; also blocks any fallback that would cross ER polygon
+  function addMarkersAndRoutes(arr,color,getPopupHTML,data,layerKey,options={}){
+    const {fallbackPolicy=null} = options;
+    const markers=L.layerGroup(), routes=L.layerGroup();
+    for(const o of arr){
+      const route=computeRouteFromGreenway(data.graph, data.groveStartKeys, o.lat, o.lon);
+      if(route){
+        const latlngs=buildRoutePolyline(data.graph, route.pathKeys);
+        L.polyline(latlngs, routeStyle(color)).addTo(routes);
+        o._routeMeters=route.meters; o._routeMin=(route.meters/CONFIG.metersPerMinuteBike);
+      }else if(typeof fallbackPolicy==='function'){
+        const style=fallbackPolicy(o);
+        if(style){
+          const near=nearestPointOnAnyLine(o.lat,o.lon,data.groveLines);
+          const seg=turf.lineString([[near[0],near[1]],[o.lon,o.lat]]);
+          // Block fallback if it intersects Eagle Rock polygon
+          if(!data.erPoly || !turf.booleanIntersects(seg, data.erPoly)){
+            L.polyline([[near[1],near[0]],[o.lat,o.lon]], style).addTo(routes);
+            const d=haversineMeters({lat:near[1],lon:near[0]}, {lat:o.lat,lon:o.lon});
+            o._routeMeters=d; o._routeMin=(d/CONFIG.metersPerMinuteBike);
+          }
+        }
+      }
+      L.circleMarker([o.lat,o.lon], circleStyle(color))
+        .bindPopup(getPopupHTML(o), {maxWidth:320})
+        .on('mouseover', function(){ this.openPopup(); })
+        .addTo(markers);
+    }
+    groups[layerKey+"_routes"]=routes.addTo(map);
+    groups[layerKey]=markers.addTo(map);
+  }
+
+  function renderMap(data){
+    globalData=data;
+    if(!map){
+      map=L.map('map',{scrollWheelZoom:true,zoomControl:true,preferCanvas:true});
+      L.tileLayer(CONFIG.tiles,{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+    }
+    // Grove Street
+    const greens=[];
+    data.groveSegments.forEach(w=>{
+      const latlngs=w.geometry.map(g=>[g.lat,g.lon]);
+      greens.push(L.polyline(latlngs,{color:CONFIG.colors.greenway,weight:6,opacity:.95}));
+    });
+    groups.greenway=L.layerGroup(greens).addTo(map);
+    groveBounds=greens.reduce((b,pl)=>b.extend(pl.getBounds()), L.latLngBounds([]));
+    if(groveBounds.isValid()) map.fitBounds(groveBounds.pad(0.1));
+
+    // Schools
+    addMarkersAndRoutes(
+      data.schools, CONFIG.colors.schools,
+      (o)=> Number.isFinite(o._routeMeters)
+        ? `<div><strong>${o.name}</strong></div><div class="small">Bike route: <strong>${fmtMi(o._routeMeters)} mi</strong> • ~<strong>${fmtMin(o._routeMin)} min</strong></div>`
+        : `<div><strong>${o.name}</strong></div><div class="small">Approx. distance from Grove shown</div>`,
+      data, "schools",
+      { fallbackPolicy:()=>({color:CONFIG.colors.schools, weight:2, opacity:.8, dashArray:'6 6'}) }
+    );
+
+    // Transit — draw only real routes; fallback only for Bay Street (solid)
+    addMarkersAndRoutes(
+      data.transit, CONFIG.colors.transit,
+      (o)=> Number.isFinite(o._routeMeters)
+        ? `<div><strong>${o.name}</strong></div><div class="small">Bike route: <strong>${fmtMi(o._routeMeters)} mi</strong> • ~<strong>${fmtMin(o._routeMin)} min</strong></div><div class="small">${o.tags.operator||"NJ TRANSIT"}</div>`
+        : `<div><strong>${o.name}</strong></div><div class="small">Direct path shown to Bay Street only</div><div class="small">${o.tags.operator||"NJ TRANSIT"}</div>`,
+      data, "transit",
+      { fallbackPolicy:(o)=> (o.name||"").toLowerCase().includes("bay street") ? {color:CONFIG.colors.transit, weight:3, opacity:.95} : null }
+    );
+
+    // Parks (start hidden)
+    addMarkersAndRoutes(
+      data.parks, CONFIG.colors.parks,
+      (o)=> Number.isFinite(o._routeMeters)
+        ? `<div><strong>${o.name}</strong></div><div class="small">Bike route: <strong>${fmtMi(o._routeMeters)} mi</strong> • ~<strong>${fmtMin(o._routeMin)} min</strong></div>`
+        : `<div><strong>${o.name}</strong></div><div class="small">Approx. distance from Grove shown</div>`,
+      data, "parks",
+      { fallbackPolicy:()=>({color:CONFIG.colors.parks, weight:2, opacity:.8, dashArray:'6 6'}) }
+    );
+    if(groups.parks && groups.parks_routes){ map.removeLayer(groups.parks); map.removeLayer(groups.parks_routes); }
+
+    // Toggles
+    document.querySelectorAll('#layerToggles input[type="checkbox"]').forEach(cb=>{
+      cb.addEventListener('change',(e)=>{
+        const key=e.target.getAttribute('data-layer');
+        const markers=groups[key], routes=groups[key+"_routes"];
+        if(key==="greenway" && groups.greenway){
+          e.target.checked ? groups.greenway.addTo(map) : map.removeLayer(groups.greenway); return;
+        }
+        if(markers && routes){
+          if(e.target.checked){ markers.addTo(map); routes.addTo(map); }
+          else { map.removeLayer(markers); map.removeLayer(routes); }
+        }
+      });
+    });
+
+    // Grove Focus
+    const focusBtn=$('focusGroveBtn'); if(focusBtn){ focusBtn.onclick=()=> focusGrove(); }
+
+    summarize(data);
+  }
+
+  /* --------------------------- FOCUS / VIEW -------------------------- */
+  function computeCentroid(latlngs){ let lat=0,lon=0; for(const p of latlngs){ lat+=p.lat; lon+=p.lng; } return L.latLng(lat/latlngs.length, lon/latlngs.length); }
+  function projectedSpanAtZoom(latlngs, z){
+    const crs=map.options.crs; let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+    for(const p of latlngs){ const pt=crs.latLngToPoint(p,z); if(pt.x<minX)minX=pt.x; if(pt.x>maxX)maxX=pt.x; if(pt.y<minY)minY=pt.y; if(pt.y>maxY)maxY=pt.y; }
+    return { w:maxX-minX, h:maxY-minY };
+  }
+  function chooseBestZoomForGrove(latlngs){
+    const size=map.getSize(), target=Math.min(size.x,size.y)*CONFIG.focusFill; let lo=12,hi=19,best=16;
+    while(lo<=hi){ const mid=Math.floor((lo+hi)/2); const span=projectedSpanAtZoom(latlngs, mid); const m=Math.max(span.w,span.h);
+      if(m<target){ best=mid; lo=mid+1; } else { hi=mid-1; } }
+    return best;
+  }
+  function focusGrove(){ if(!globalData) return; const c=computeCentroid(globalData.groveLatLngs); const z=chooseBestZoomForGrove(globalData.groveLatLngs); map.setView(c,z,{animate:true}); }
+
+  /* ------------------------------- BOOT ------------------------------ */
+  async function boot(){
+    try{
+      updateStatus("Verifying libraries & theme…",8); runTestsLibs();
+      const data=await fetchAll();
+      updateStatus("Validating data & routing…",78); runTestsData(data);
+      updateStatus("Rendering map…",92); renderMap(data);
+      updateStatus("All checks passed ✓",100);
+      setTimeout(()=>{ const ov=$('overlay'); if(ov) ov.style.display='none'; },250);
+      setTimeout(()=> focusGrove(),150);
+    }catch(err){
+      console.error(err);
+      const ov=$('overlay'); const card=ov?ov.querySelector('.card'):null;
+      if(card){ card.innerHTML=`<div class="error">We couldn’t verify everything needed to render the map.</div>
+        <p class="small">Details:</p><pre class="mono" style="white-space:pre-wrap">${(err&&err.message)?err.message:String(err)}</pre>
+        <button class="btn" onclick="location.reload()">Reload</button>`; }
+    }
+  }
+
+  // Dev-only rerun hook
+  window.rerunChecks=function(){ const ov=$('overlay'),bar=$('bar'),status=$('status'); if(ov) ov.style.display='flex'; if(bar) bar.style.width='12%'; if(status) status.textContent='Re-running checks…'; setTimeout(()=>boot(),60); };
+
+  // Keep Grove prominent on resize
+  let _resizeTimer; window.addEventListener('resize',()=>{ clearTimeout(_resizeTimer); _resizeTimer=setTimeout(()=>{ if(typeof focusGrove==='function') focusGrove(); },200); });
+
+  boot();
+});
+</script>
+</body>
+</html>
