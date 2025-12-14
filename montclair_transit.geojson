@@ -1,0 +1,111 @@
+{
+  "type": "FeatureCollection",
+  "name": "Montclair Transit - Rail Stations",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bay Street",
+        "address": "Pine St between Bloomfield & Glenridge Aves, Montclair, NJ",
+        "line": "Montclair-Boonton Line",
+        "accessible": true,
+        "parking": "Municipal lot; bike room in garage",
+        "notes": "Rebuilt 2002; Transit Village 2010; weekend service terminus"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.20874437501679, 40.80834238467844]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Walnut Street",
+        "address": "Walnut St at Depot Square, Montclair, NJ",
+        "line": "Montclair-Boonton Line",
+        "accessible": false,
+        "parking": "Street/lot",
+        "notes": "Busiest station on line; built 1952; near Erie Park"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.20993044803251, 40.81764967125761]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Watchung Avenue",
+        "address": "Park St at Watchung Plaza, Montclair, NJ",
+        "line": "Montclair-Boonton Line",
+        "accessible": false,
+        "parking": "Fairfield St lot; limited bike racks",
+        "notes": "Historic station house; weekday service only"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2128, 40.8228]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Upper Montclair",
+        "address": "Bellevue Ave at N Mountain Ave, Upper Montclair, NJ",
+        "line": "Montclair-Boonton Line",
+        "accessible": false,
+        "parking": "89 spaces (Lot 1)",
+        "notes": "Rebuilt 2010 after 2006 fire; National Register of Historic Places"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2085, 40.8395]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mountain Avenue",
+        "address": "Upper Mountain Ave at Glenwood Pl, Montclair, NJ",
+        "line": "Montclair-Boonton Line",
+        "accessible": false,
+        "parking": "Laurel Pl lot",
+        "notes": "1889 Erie depot (now residence); smallest station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2062, 40.8468]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Montclair Heights",
+        "address": "Normal Ave at Carlisle Rd, Montclair, NJ",
+        "line": "Montclair-Boonton Line",
+        "accessible": true,
+        "parking": "Street",
+        "notes": "Mini-high platforms; near MSU south entrance"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2035, 40.8545]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Montclair State University",
+        "address": "100 Clove Rd, Little Falls, NJ",
+        "line": "Montclair-Boonton Line",
+        "accessible": true,
+        "parking": "Campus lots",
+        "notes": "Opened 2004; technically in Little Falls"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.1948, 40.8685]
+      }
+    }
+  ]
+}

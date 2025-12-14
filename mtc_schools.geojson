@@ -1,0 +1,336 @@
+{
+  "type": "FeatureCollection",
+  "name": "Montclair Schools",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bradford Elementary",
+        "address": "87 Mt Hebron Rd, Upper Montclair, NJ 07043",
+        "type": "public",
+        "level": "elementary",
+        "grades": "K-5",
+        "theme": "University"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.20122, 40.85444]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Charles H. Bullock Elementary",
+        "address": "55 Washington St, Montclair, NJ 07042",
+        "type": "public",
+        "level": "elementary",
+        "grades": "K-5",
+        "theme": "Environmental Science"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2128, 40.8153]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Edgemont Montessori",
+        "address": "20 Edgemont Rd, Montclair, NJ 07042",
+        "type": "public",
+        "level": "elementary",
+        "grades": "K-5",
+        "theme": "Montessori"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.21496, 40.83049]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Hillside Elementary",
+        "address": "54 Orange Rd, Montclair, NJ 07042",
+        "type": "public",
+        "level": "elementary",
+        "grades": "3-5",
+        "theme": "Gifted & Talented"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.223236, 40.81561]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Nishuane Elementary",
+        "address": "32 Cedar Ave, Montclair, NJ 07042",
+        "type": "public",
+        "level": "elementary",
+        "grades": "PreK-2",
+        "theme": "Gifted & Talented"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.22179, 40.79942]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Northeast Elementary",
+        "address": "603 Grove St, Upper Montclair, NJ 07043",
+        "type": "public",
+        "level": "elementary",
+        "grades": "K-5",
+        "theme": "Global Studies"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.201737, 40.83996]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Watchung Elementary",
+        "address": "14 Garden St, Montclair, NJ 07042",
+        "type": "public",
+        "level": "elementary",
+        "grades": "K-5",
+        "theme": "Science & Technology (STEAM)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.20532, 40.82786]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Buzz Aldrin Middle School",
+        "address": "173 Bellevue Ave, Upper Montclair, NJ 07043",
+        "type": "public",
+        "level": "middle",
+        "grades": "6-8",
+        "theme": "STEM"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.203316, 40.840427]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Glenfield Middle School",
+        "address": "25 Maple Ave, Montclair, NJ 07042",
+        "type": "public",
+        "level": "middle",
+        "grades": "6-8",
+        "theme": "Visual & Performing Arts"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.21, 40.805556]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Renaissance at Rand",
+        "address": "176 N Fullerton Ave, Montclair, NJ 07042",
+        "type": "public",
+        "level": "middle",
+        "grades": "6-8",
+        "theme": "Liberal Arts / Community Service"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.212229, 40.820836]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Montclair High School",
+        "address": "100 Chestnut St, Montclair, NJ 07042",
+        "type": "public",
+        "level": "high",
+        "grades": "9-12",
+        "theme": "Comprehensive"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.21292, 40.82316]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Montclair Community Pre-K (MCPK)",
+        "address": "49 Orange Rd, Montclair, NJ 07042",
+        "type": "private",
+        "level": "preschool",
+        "grades": "PreK",
+        "notes": "NAEYC accredited; Spanish immersion available"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2182, 40.8188]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "St. James Preschool",
+        "address": "581 Valley Rd, Upper Montclair, NJ 07043",
+        "type": "private",
+        "level": "preschool",
+        "grades": "PreK",
+        "notes": "At St. James Episcopal Church"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2075, 40.8385]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Union Congregational Nursery",
+        "address": "176 Cooper Ave, Upper Montclair, NJ 07043",
+        "type": "private",
+        "level": "preschool",
+        "grades": "PreK",
+        "notes": "Reggio Emilia approach"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2058, 40.8425]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Pilsbury School",
+        "address": "433 Park St, Upper Montclair, NJ 07043",
+        "type": "private",
+        "level": "preschool",
+        "grades": "Nursery-PreK",
+        "notes": "Family-owned, 50+ years"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2125, 40.8285]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Montclair Cooperative School",
+        "address": "65 Chestnut St, Montclair, NJ 07042",
+        "type": "private",
+        "level": "prek-8",
+        "grades": "Nursery-8",
+        "notes": "Progressive, cooperative model"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2148, 40.8165]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "St. Cassian School",
+        "address": "190 Lorraine Ave, Upper Montclair, NJ 07043",
+        "type": "private",
+        "level": "prek-8",
+        "grades": "PreK-8",
+        "notes": "Catholic; National Blue Ribbon School"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2088, 40.8398]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Lacordaire Academy",
+        "address": "155 Lorraine Ave, Upper Montclair, NJ 07043",
+        "type": "private",
+        "level": "prek-12",
+        "grades": "PreK-12",
+        "notes": "Catholic/Dominican; coed PreK-8, all-girls 9-12"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2082, 40.8392]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "MKA Brookside Campus",
+        "address": "224 Orange Rd, Montclair, NJ 07042",
+        "type": "private",
+        "level": "elementary",
+        "grades": "Jr-K through 3",
+        "notes": "Montclair Kimberley Academy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2205, 40.8248]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "MKA Middle School",
+        "address": "201 Valley Rd, Montclair, NJ 07042",
+        "type": "private",
+        "level": "middle",
+        "grades": "4-8",
+        "notes": "Montclair Kimberley Academy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2098, 40.8258]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "MKA Upper School",
+        "address": "6 Lloyd Rd, Montclair, NJ 07042",
+        "type": "private",
+        "level": "high",
+        "grades": "9-12",
+        "notes": "Montclair Kimberley Academy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2135, 40.8268]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Montclair State University",
+        "address": "1 Normal Ave, Montclair, NJ 07043",
+        "type": "public",
+        "level": "university",
+        "grades": "Higher Ed",
+        "notes": "R2 Doctoral Research University; ~21,000 students"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.196948, 40.864768]
+      }
+    }
+  ]
+}

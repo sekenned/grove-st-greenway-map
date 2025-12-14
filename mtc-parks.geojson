@@ -1,0 +1,171 @@
+{
+  "type": "FeatureCollection",
+  "name": "Montclair Area Parks (Bike Access Entrances)",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Alonzo F. Bonsal Wildlife Preserve",
+        "address": "Riverview Dr W, Montclair, NJ 07043",
+        "type": "wildlife_preserve",
+        "jurisdiction": "Township of Montclair",
+        "entrance_description": "Primary pedestrian access between 21 and 25 Riverview Dr W, at the trail/bridge into the preserve.",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.186614, 40.849328]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Anderson Park",
+        "address": "274 Bellevue Ave, Upper Montclair, NJ 07043",
+        "type": "county",
+        "operator": "Essex County Parks Department",
+        "notes": "County park bordered by North Mountain Ave, Parkside Rd, Bellevue Ave, and NJ Transit tracks. Point near Bellevue Ave entrance.",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.20959, 40.8398219]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Brookdale Park",
+        "address": "473 Watchung Ave, Bloomfield, NJ 07003",
+        "type": "county",
+        "operator": "Essex County Parks Department",
+        "notes": "County park spanning Bloomfield and Montclair; approx. 43 acres in Montclair. Entrance point near central parking / athletic area.",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.1882005, 40.8325999]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Eagle Rock Reservation",
+        "address": "Eagle Rock Ave & Prospect Ave, West Orange, NJ 07052",
+        "type": "reservation",
+        "jurisdiction": "Essex County",
+        "entrance_description": "Main Eagle Rock Ave entrance / 9-11 Memorial observation deck and main parking area.",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.238206, 40.803025]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Edgemont Memorial Park",
+        "address": "274 Valley Rd, Montclair, NJ 07042",
+        "type": "municipal",
+        "operator": "Montclair Department of Parks and Recreation",
+        "notes": "Municipal park with WWI memorial obelisk and pond fed by Toney's Brook. Point at central memorial / pond area.",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2123679, 40.8306554]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Essex Park",
+        "address": "41 Chestnut St, Montclair, NJ 07042",
+        "type": "municipal_park",
+        "jurisdiction": "Township of Montclair",
+        "entrance_description": "Approximate main entrance near Essex Park Pool and playground on Chestnut St.",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2078, 40.8221]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Glenfield Park",
+        "address": "25 Maple Ave, Montclair, NJ 07042",
+        "type": "county",
+        "operator": "Essex County Parks Department",
+        "notes": "County park bordered by Maple Ave, Woodland Ave, Bloomfield Ave, and NJT tracks. Point near Maple Ave / community center side (approximate).",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2113056, 40.8046944]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mills Reservation",
+        "address": "Normal Ave & Reservoir Dr, Cedar Grove, NJ 07009",
+        "type": "reservation",
+        "jurisdiction": "Essex County",
+        "entrance_description": "Normal Ave parking lot/trailhead (primary access for Montclair/Cedar Grove and Lenape Trail).",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.209138, 40.857675]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mountainside Park",
+        "address": "205 Upper Mountain Ave, Upper Montclair, NJ 07043",
+        "type": "municipal_park",
+        "jurisdiction": "Township of Montclair",
+        "entrance_description": "Upper Mountain Ave entrance by parking and ballfields (bike-friendly access from Upper Mountain).",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.2043, 40.8518]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Nishuane Park",
+        "address": "Harrison Ave & High St, Montclair, NJ 07042",
+        "type": "municipal",
+        "operator": "Montclair Department of Parks and Recreation",
+        "entrance_description": "Primary bike-friendly entrance on Harrison Ave at pedestrian path near playground and fields.",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.21464, 40.81219]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Yantacaw Brook Park",
+        "address": "30 Club Rd, Montclair, NJ 07043",
+        "type": "municipal",
+        "operator": "Montclair Parks and Recreation",
+        "notes": "Municipal park with pond and brook. Point at main Club Rd entrance near the pond.",
+        "bike_time_from_grove_min": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.19015, 40.84232]
+      }
+    }
+  ]
+}
