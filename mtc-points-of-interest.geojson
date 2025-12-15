@@ -108,6 +108,21 @@
                 ],
                 "type": "Point"
             }
-        }
+        },
+        {
+      "type": "Feature",
+      "properties": {
+        "name": "Grove Street Business District",
+        "address": "Grove St and Walnut St",
+        "type": "business district",
+        "bike_time_from_grove_min": null},
+      "geometry": {
+        "coordinates": [
+          -74.20799216384168,
+          40.81515078913611
+        ],
+        "type": "Point"
+      }
+    }
   ]
 }
