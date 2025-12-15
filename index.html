@@ -1,3 +1,8 @@
+Done — on **mobile only** (≤ 640px), the Layers/Legend panel will start **collapsed**, while on desktop it starts open.
+
+Here’s the updated full `index.html` (only change is: the control gets `collapsed` class on mobile at creation time):
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -331,7 +336,6 @@
     });
 
     // Custom panes for z-order of icons
-    // (higher zIndex = more front)
     map.createPane("poiPane");
     map.getPane("poiPane").style.zIndex = 410;
 
@@ -499,12 +503,10 @@
       const cat = (props.category || "").toLowerCase();
 
       if (cat === "hospital") return L.marker(latlng, { icon: hospitalIcon, pane: "poiPane" });
-      if (cat === "grocery")  return L.marker(latlng, { icon: groceryIcon, pane: "poiPane" });  // purple by CSS
-      if (cat === "library")  return L.marker(latlng, { icon: libraryIcon, pane: "poiPane" });  // purple by CSS
+      if (cat === "grocery")  return L.marker(latlng, { icon: groceryIcon, pane: "poiPane" });
+      if (cat === "library")  return L.marker(latlng, { icon: libraryIcon, pane: "poiPane" });
 
-      const styles = getComputedStyle(document.documentElement);
-      const fill = (styles.getPropertyValue("--accent-purple") || "#6a3d9a").trim();
-
+      const fill = (getComputedStyle(document.documentElement).getPropertyValue("--accent-purple") || "#6a3d9a").trim();
       return L.circleMarker(latlng, {
         pane: "poiPane",
         radius: 7,
@@ -527,7 +529,6 @@
       const title = `${emoji} ${props.name || "Point of Interest"}`;
       const address = props.address;
       const notes = props.notes || "";
-
       let html = `<h3>${title}</h3>`;
       if (address) html += `<p>${address}</p>`;
       if (notes) html += `<p>${notes}</p>`;
@@ -607,7 +608,6 @@
       { name: "Montclair Parks", file: "mtc-parks.geojson", kind: "parks", defaultOn: true },
       { name: "Montclair Schools", file: "mtc_schools.geojson", kind: "schools", defaultOn: true },
       { name: "Montclair Points of Interest", file: "mtc-points-of-interest.geojson", kind: "poi", defaultOn: true }
-      // South End Business District: assumed merged into POIs; no separate toggle.
     ];
 
     // Pre-create groups + set defaults
@@ -616,11 +616,15 @@
       if (cfg.defaultOn) overlayGroups[cfg.name].addTo(map);
     });
 
-    // ---------- Combined Layers + Legend Control ----------
+    // ---------- Combined Layers + Legend Control (collapsed on mobile only) ----------
     const LayersLegendControl = L.Control.extend({
       options: { position: "topright" },
       onAdd: function() {
         const container = L.DomUtil.create("div", "layers-legend-control leaflet-bar");
+
+        // ✅ NEW: start collapsed on mobile only
+        const isMobile = window.matchMedia("(max-width: 640px)").matches;
+        if (isMobile) container.classList.add("collapsed");
 
         const header = L.DomUtil.create("div", "layers-legend-header", container);
         const title = L.DomUtil.create("div", "layers-legend-title", header);
@@ -634,62 +638,40 @@
         L.DomEvent.disableClickPropagation(container);
         L.DomEvent.disableScrollPropagation(container);
 
-        // Network
-        const linesLabel = L.DomUtil.create("div", "layer-section-label", body);
-        linesLabel.textContent = "Network";
-
-        const lineRows = [
-          { name: "Grove Street Greenway", symbolClass: "layer-symbol-line line-grove-main", label: "Grove Greenway", dashed: false },
-          { name: "Elm + Orange Extension (South End Connector)", symbolClass: "layer-symbol-line line-grove-elm", label: "Elm/Orange (concept)", dashed: false },
-          { name: "Essex–Hudson Greenway", symbolClass: "layer-symbol-line line-teal", label: "Essex–Hudson Greenway", dashed: false },
-          { name: "Lenape Trail", symbolClass: "layer-symbol-line line-yellow is-dashed", label: "Lenape Trail", dashed: true },
-          { name: "Morris Canal Greenway (Proposed)", symbolClass: "layer-symbol-line line-teal is-dashed", label: "Morris Canal (proposed)", dashed: true }
-        ];
-
-        lineRows.forEach(r => {
+        const addRow = (layerName, symbolElClass, labelText) => {
           const row = L.DomUtil.create("label", "layer-row", body);
           const input = L.DomUtil.create("input", "", row);
           input.type = "checkbox";
-          input.checked = !!layerConfigs.find(c => c.name === r.name)?.defaultOn;
-          input.dataset.layerName = r.name;
+          input.checked = !!layerConfigs.find(c => c.name === layerName)?.defaultOn;
+          input.dataset.layerName = layerName;
 
-          L.DomUtil.create("span", "layer-symbol " + r.symbolClass, row);
+          L.DomUtil.create("span", "layer-symbol " + symbolElClass, row);
           const labelSpan = L.DomUtil.create("span", "layer-label", row);
-          labelSpan.textContent = r.label;
-        });
+          labelSpan.textContent = labelText;
+
+          input.addEventListener("change", (e) => {
+            setLayerVisibility(layerName, e.target.checked);
+          });
+        };
+
+        // Network
+        const net = L.DomUtil.create("div", "layer-section-label", body);
+        net.textContent = "Network";
+        addRow("Grove Street Greenway", "layer-symbol-line line-grove-main", "Grove Greenway");
+        addRow("Elm + Orange Extension (South End Connector)", "layer-symbol-line line-grove-elm", "Elm/Orange (concept)");
+        addRow("Essex–Hudson Greenway", "layer-symbol-line line-teal", "Essex–Hudson Greenway");
+        addRow("Lenape Trail", "layer-symbol-line line-yellow is-dashed", "Lenape Trail");
+        addRow("Morris Canal Greenway (Proposed)", "layer-symbol-line line-teal is-dashed", "Morris Canal (proposed)");
 
         // Places
-        const placesLabel = L.DomUtil.create("div", "layer-section-label", body);
-        placesLabel.textContent = "Places";
+        const places = L.DomUtil.create("div", "layer-section-label", body);
+        places.textContent = "Places";
+        addRow("Montclair Transit Hubs", "layer-symbol-dot dot-transit", "Transit hubs");
+        addRow("Montclair Parks", "layer-symbol-dot dot-park", "Parks");
+        addRow("Montclair Schools", "layer-symbol-dot dot-school", "Schools");
+        addRow("Montclair Points of Interest", "layer-symbol-dot dot-poi", "Points of interest (incl. grocery)");
 
-        const placeRows = [
-          { name: "Montclair Transit Hubs", symbolClass: "layer-symbol-dot dot-transit", label: "Transit hubs" },
-          { name: "Montclair Parks", symbolClass: "layer-symbol-dot dot-park", label: "Parks" },
-          { name: "Montclair Schools", symbolClass: "layer-symbol-dot dot-school", label: "Schools" },
-          { name: "Montclair Points of Interest", symbolClass: "layer-symbol-dot dot-poi", label: "Points of interest (incl. grocery)" }
-        ];
-
-        placeRows.forEach(r => {
-          const row = L.DomUtil.create("label", "layer-row", body);
-          const input = L.DomUtil.create("input", "", row);
-          input.type = "checkbox";
-          input.checked = !!layerConfigs.find(c => c.name === r.name)?.defaultOn;
-          input.dataset.layerName = r.name;
-
-          L.DomUtil.create("span", "layer-symbol " + r.symbolClass, row);
-          const labelSpan = L.DomUtil.create("span", "layer-label", row);
-          labelSpan.textContent = r.label;
-        });
-
-        // Wire up toggles
-        container.querySelectorAll("input[type='checkbox']").forEach(input => {
-          input.addEventListener("change", (e) => {
-            const name = e.target.dataset.layerName;
-            setLayerVisibility(name, e.target.checked);
-          });
-        });
-
-        // Collapse/expand via header (icon stays visible)
+        // Collapse/expand via header
         header.addEventListener("click", () => {
           container.classList.toggle("collapsed");
         });
@@ -742,7 +724,6 @@
             // Center on Grove + Elm/Orange together
             extendGroveBounds(coreLayer);
             extendOverallBounds(coreLayer);
-
             return;
           }
 
@@ -761,17 +742,11 @@
             return;
           }
 
-          // point layers
           let opts = {};
-          if (cfg.kind === "poi") {
-            opts = { pointToLayer: poiPointToLayer, onEachFeature: poiOnEachFeature };
-          } else if (cfg.kind === "parks") {
-            opts = { pointToLayer: parkPointToLayer, onEachFeature: parkOnEachFeature };
-          } else if (cfg.kind === "schools") {
-            opts = { pointToLayer: schoolPointToLayer, onEachFeature: schoolOnEachFeature };
-          } else if (cfg.kind === "transit") {
-            opts = { pointToLayer: transitPointToLayer, onEachFeature: transitOnEachFeature };
-          }
+          if (cfg.kind === "poi") opts = { pointToLayer: poiPointToLayer, onEachFeature: poiOnEachFeature };
+          else if (cfg.kind === "parks") opts = { pointToLayer: parkPointToLayer, onEachFeature: parkOnEachFeature };
+          else if (cfg.kind === "schools") opts = { pointToLayer: schoolPointToLayer, onEachFeature: schoolOnEachFeature };
+          else if (cfg.kind === "transit") opts = { pointToLayer: transitPointToLayer, onEachFeature: transitOnEachFeature };
 
           const layer = L.geoJSON(geojson, opts).addTo(group);
           extendOverallBounds(layer);
@@ -782,14 +757,13 @@
     });
 
     Promise.all(promises).then(() => {
-      // Prefer fitting to Grove (+ Elm/Orange); fall back to all layers if needed
       if (groveBounds.isValid()) map.fitBounds(groveBounds.pad(0.10));
       else if (overallBounds.isValid()) map.fitBounds(overallBounds.pad(0.08));
     });
 
     // Local testing:
     // python -m http.server 8000
-    // then open http://localhost:8000
   </script>
 </body>
 </html>
+```
