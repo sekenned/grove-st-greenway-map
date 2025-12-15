@@ -20,36 +20,6 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Walnut Street",
-        "address": "Walnut St at Depot Square, Montclair, NJ",
-        "line": "Montclair-Boonton Line",
-        "accessible": false,
-        "parking": "Street/lot",
-        "notes": "Busiest station on line; built 1952; near Erie Park"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.20993044803251, 40.81764967125761]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Watchung Avenue",
-        "address": "Park St at Watchung Plaza, Montclair, NJ",
-        "line": "Montclair-Boonton Line",
-        "accessible": false,
-        "parking": "Fairfield St lot; limited bike racks",
-        "notes": "Historic station house; weekday service only"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.2128, 40.8228]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "name": "Mountain Avenue",
         "address": "Upper Mountain Ave at Glenwood Pl, Montclair, NJ",
         "line": "Montclair-Boonton Line",
@@ -60,20 +30,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [-74.20547663524076, 40.848993153750754]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Bay Street Station",
-        "mode": "rail",
-        "operator": "NJ Transit",
-        "line": "Montclair-Boonton Line",
-        "notes": "Primary Montclair NJT rail terminal; major transfer and park-and-ride"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.20799, 40.809311]
       }
     },
     {

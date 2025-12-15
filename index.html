@@ -1,499 +1,970 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Grove Street Greenway — Impact Map</title>
-  <meta name="description" content="How a protected Grove Street Greenway connects Montclair residents to schools, transit, and parks — with bikeable routes and time estimates." />
+  <meta charset="UTF-8" />
+  <title>Grove Street Greenway Map</title>
 
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Turf.js -->
-  <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
-
-  <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%232e7d32'/%3E%3Cpath d='M16 40 L32 16 L48 40' fill='none' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
 
   <style>
-    :root{
-      --bg:#ffffff; --ink:#1f2937; --muted:#6b7280; --accent:#2e7d32; --accent-weak:#e7f3e7;
-      --card:#ffffff; --surface:#f6f7f9; --border:#e5e7eb; --radius:12px; --shadow:0 6px 18px rgba(0,0,0,.07);
-      --font:"Roboto", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, "Noto Sans", sans-serif;
+    :root {
+      /* Grove + friends */
+      --grove-green: #2ca25f;
+      --grove-green-proposed: #1b7a3a; /* darker green for Elm/Orange option */
+      --grove-green-halo: #c7e9c0;
+
+      --accent-blue: #2563eb;
+      --accent-orange: #f97316;    /* transit */
+      --accent-red: #e31a1c;
+      --accent-purple: #6a3d9a;    /* all POIs (incl. grocery + library) */
+      --accent-teal: #1f9fb5;
+      --accent-yellow: #f6c915;    /* Lenape yellow */
+      --schools-blue: #1d4ed8;     /* Montclair royal blue */
+
+      --text-muted: #555555;
+      --border-soft: #e2e8f0;
+      --bg: #ffffff;
     }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5;-webkit-font-smoothing:antialiased}
-    a{color:#1f6e2b;text-decoration:none} a:hover{text-decoration:underline}
 
-    header{padding:18px clamp(16px,4vw,28px);border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between}
-    header h1{margin:0;font-weight:700;font-size:clamp(18px,3vw,22px)}
-    .badge{font-size:.78rem;font-weight:700;color:var(--accent);background:var(--accent-weak);border:1px solid #cfe8cf;padding:.2rem .5rem;border-radius:999px;margin-left:.6ch}
+    * {
+      box-sizing: border-box;
+    }
 
-    main{padding:clamp(12px,2.8vw,24px);display:grid;gap:12px}
-    #map{width:100%;min-height:68vh;height:clamp(520px,72vh,860px);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: #111827;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-    .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
-    .controls-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
-    .toggles{display:flex;flex-wrap:wrap;gap:14px}
-    .toggle{display:flex;align-items:center;gap:8px}
-    .toggle input{accent-color:var(--accent)}
-    .legend-dot{width:12px;height:12px;border-radius:999px;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15);display:inline-block}
-    .btn{appearance:none;border:1px solid var(--border);background:#fff;padding:.55rem .8rem;border-radius:10px;cursor:pointer;font-weight:600}
-    .btn:hover{border-color:#cfd6df}
-    .small{font-size:.87rem;color:var(--muted)}
-    .attr{font-size:.85rem;color:var(--muted)}
+    header {
+      padding: 1.25rem 1.5rem 0.75rem;
+      border-bottom: 1px solid var(--border-soft);
+    }
 
-    .overlay{position:fixed;inset:0;background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:center;z-index:2000;padding:24px;text-align:center}
-    .overlay .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:18px 18px 14px;max-width:720px}
-    .progress{height:6px;background:var(--surface);border-radius:999px;overflow:hidden;margin-top:12px}
-    .bar{height:100%;width:12%;background:linear-gradient(90deg,var(--accent),#1a9b4b);transition:width .4s ease}
-    .error{color:#b91c1c;font-weight:700} .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.9rem}
+    header h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin: 0.35rem 0 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    #map-container {
+      flex: 1;
+      padding: 0.75rem 1.5rem 1.25rem;
+    }
+
+    #map {
+      width: 100%;
+      height: calc(100vh - 100px);
+      max-width: 1200px;
+      margin: 0 auto;
+      border-radius: 18px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .leaflet-popup-content {
+      margin: 0.2rem 0;
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+
+    .leaflet-popup-content h3 {
+      margin: 0 0 0.15rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .leaflet-popup-content p {
+      margin: 0.1rem 0;
+    }
+
+    /* Combined Layers + Legend control */
+    .layers-legend-control {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+      padding: 0.5rem 0.75rem 0.35rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      backdrop-filter: blur(4px);
+      min-width: 210px;
+    }
+
+    .layers-legend-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.25rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .layers-legend-title {
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #0f172a;
+    }
+
+    .layers-legend-toggle-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: #4b5563;
+      background: #ffffff;
+    }
+
+    .layers-legend-body {
+      margin-top: 0.25rem;
+    }
+
+    .layers-legend-control.collapsed .layers-legend-body {
+      display: none;
+    }
+
+    .layer-section-label {
+      margin: 0.3rem 0 0.1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6b7280;
+    }
+
+    .layer-row {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin: 0.1rem 0;
+      line-height: 1.2;
+    }
+
+    .layer-row input[type="checkbox"] {
+      width: 13px;
+      height: 13px;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .layer-symbol {
+      flex: 0 0 auto;
+    }
+
+    .layer-label {
+      flex: 1 1 auto;
+      font-size: 0.78rem;
+      color: #111827;
+    }
+
+    .layer-symbol-line {
+      width: 26px;
+      height: 3px;
+      border-radius: 999px;
+    }
+
+    .layer-symbol-line.grove-main {
+      background: var(--grove-green);
+    }
+
+    .layer-symbol-line.grove-elm-orange {
+      background: var(--grove-green);
+      opacity: 0.75;
+    }
+
+    .layer-symbol-line.trail-teal {
+      background: var(--accent-teal);
+    }
+
+    .layer-symbol-line.trail-yellow {
+      background: var(--accent-yellow);
+    }
+
+    .layer-symbol-line.dashed {
+      border-bottom: 2px dashed rgba(15, 23, 42, 0.4);
+      background: transparent;
+    }
+
+    .layer-symbol-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+    }
+
+    .dot-transit {
+      background: var(--accent-orange);
+    }
+
+    .dot-poi {
+      background: var(--accent-purple);
+    }
+
+    .dot-hospital {
+      background: var(--accent-red);
+    }
+
+    .dot-park {
+      background: var(--grove-green);
+    }
+
+    .dot-school {
+      background: var(--schools-blue);
+    }
+
+    /* Custom vector marker styling (for map markers) */
+    .custom-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+      border: 1px solid var(--border-soft);
+    }
+
+    .custom-marker svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .custom-marker-park {
+      color: var(--grove-green);
+    }
+
+    .custom-marker-school {
+      color: var(--schools-blue);
+    }
+
+    .custom-marker-transit {
+      color: var(--accent-orange);
+    }
+
+    .custom-marker-hospital {
+      color: var(--accent-red);
+    }
+
+    .custom-marker-grocery {
+      color: var(--accent-purple);
+    }
+
+    .custom-marker-library {
+      color: var(--accent-purple);
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Grove Street Greenway <span class="badge">Impact Map</span></h1>
-    <div class="small">No API keys • Live OpenStreetMap data</div>
+    <h1>Grove Street Greenway Map</h1>
+    <p>Toggle each layer to explore the emerging active-transportation spine through Montclair.</p>
   </header>
 
-  <main>
-    <section aria-label="Map">
-      <div id="map"></div>
-      <div class="attr" style="margin-top:8px">
-        Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-        OpenStreetMap contributors</a> • Tiles © OSM • Routing & distance by <a href="https://turfjs.org/" target="_blank" rel="noreferrer">Turf.js</a>
-      </div>
-    </section>
-
-    <section class="panel" aria-label="Map options">
-      <div class="controls-row" style="margin-bottom:8px">
-        <div class="toggles" id="layerToggles">
-          <label class="toggle"><input type="checkbox" data-layer="schools" checked><span class="legend-dot" style="background:#2563eb"></span>Schools</label>
-          <label class="toggle"><input type="checkbox" data-layer="transit" checked><span class="legend-dot" style="background:#7c3aed"></span>Transit</label>
-          <label class="toggle"><input type="checkbox" data-layer="parks"><span class="legend-dot" style="background:#059669"></span>Parks</label>
-          <label class="toggle"><input type="checkbox" data-layer="greenway" checked><span class="legend-dot" style="background:#2e7d32"></span>Greenway</label>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn" id="focusGroveBtn" type="button">Grove Focus</button>
-        </div>
-      </div>
-      <div class="small" id="summary"></div>
-      <div class="small" style="margin-top:6px">Each marker shows a <strong>bikeable path</strong> from the Greenway plus an <strong>estimated ride time</strong> (~10 mph).</div>
-    </section>
-  </main>
-
-  <div id="overlay" class="overlay" aria-live="polite">
-    <div class="card">
-      <div id="status" class="mono">Running pre-flight checks…</div>
-      <div class="progress"><div id="bar" class="bar"></div></div>
-      <div class="small" style="margin-top:8px">We verify data, math, and routing before showing the map.</div>
-    </div>
+  <div id="map-container">
+    <div id="map"></div>
   </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  /* ----------------------------- CONFIG ------------------------------ */
-  const CONFIG = {
-    bbox: { s: 40.795, w: -74.235, n: 40.855, e: -74.185 },
-    overpassEndpoints: [
-      "https://overpass-api.de/api/interpreter",
-      "https://overpass.kumi.systems/api/interpreter",
-      "https://overpass.openstreetmap.ru/api/interpreter"
-    ],
-    tiles: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    colors: { greenway:"#2e7d32", schools:"#2563eb", transit:"#7c3aed", parks:"#059669" },
-    metersPerMinuteBike: 16093.44 / 60,
-    excludeHighways: new Set(["motorway","motorway_link","trunk","trunk_link"]),
-    focusFill: 0.92,
-    transitAllowList: ["Bay Street","Walnut Street","Watchung Avenue","Mountain Avenue","Upper Montclair"],
-    schoolBlockList: ["Southwest School"]
-  };
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
 
-  /* ----------------------------- HELPERS ----------------------------- */
-  const $ = (id) => document.getElementById(id);
-  function bboxString(bb){ return `${bb.s},${bb.w},${bb.n},${bb.e}`; }
-  function updateStatus(text,pct){ const s=$('status'); if(s) s.textContent = text; const bar=$('bar'); if(typeof pct==="number"&&bar){ bar.style.width=Math.max(6,Math.min(100,pct))+'%'; } }
-  const toKey=(lat,lon)=>`${lat.toFixed(6)},${lon.toFixed(6)}`;
-  function haversineMeters(a,b){
-    const R=6371000,toRad=d=>d*Math.PI/180;
-    const dLat=toRad(b.lat-a.lat), dLon=toRad(b.lon-a.lon);
-    const la1=toRad(a.lat), la2=toRad(b.lat);
-    const x=Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;
-    return 2*R*Math.asin(Math.sqrt(x));
-  }
-
-  /* ---------------------------- OVERPASS ----------------------------- */
-  async function overpassFetch(query, attempt=0){
-    const endpoint=CONFIG.overpassEndpoints[attempt];
-    if(!endpoint) throw new Error("All Overpass endpoints failed");
-    try{
-      const res=await fetch(endpoint,{method:'POST',body:new URLSearchParams({data:query})});
-      if(!res.ok) throw new Error(`Overpass ${attempt+1} HTTP ${res.status}`);
-      return await res.json();
-    }catch(e){
-      await new Promise(r=>setTimeout(r, 200+Math.random()*300));
-      return overpassFetch(query, attempt+1);
-    }
-  }
-  function areaDef(){ return `area["name"~"^Montclair( Township)?$"]["boundary"="administrative"]["admin_level"~"7|8"](${bboxString(CONFIG.bbox)})->.a;`; }
-  const qGroveLine = ()=>`[out:json][timeout:30];way["highway"]["name"="Grove Street"](${bboxString(CONFIG.bbox)});out tags geom;`;
-  const qBikeableWays = ()=>`[out:json][timeout:60];way["highway"](${bboxString(CONFIG.bbox)});out tags geom;`;
-  const qSchoolsArea = ()=>`[out:json][timeout:30];${areaDef()}(node["amenity"="school"](area.a);way["amenity"="school"](area.a);relation["amenity"="school"](area.a););out center;`;
-  const qTransitArea = ()=>`[out:json][timeout:30];${areaDef()}(node["railway"~"station|halt"](area.a);way["railway"~"station|halt"](area.a);relation["railway"~"station|halt"](area.a););out center;`;
-  const qParksArea = ()=>`[out:json][timeout:30];${areaDef()}(node["leisure"="park"](area.a);way["leisure"="park"](area.a);relation["leisure"="park"](area.a););out center;`;
-  // Fetch full geometry of Eagle Rock Reservation (any tagging that’s used in OSM)
-  const qEagleRockGeom = ()=>`
-    [out:json][timeout:60];
-    (
-      relation["name"="Eagle Rock Reservation"]["type"="multipolygon"](${bboxString(CONFIG.bbox)});
-      relation["name"="Eagle Rock Reservation"]["boundary"~"protected_area|administrative"](${bboxString(CONFIG.bbox)});
-      way["name"="Eagle Rock Reservation"]["leisure"="nature_reserve"](${bboxString(CONFIG.bbox)});
-      way["name"="Eagle Rock Reservation"]["boundary"~"protected_area|administrative"](${bboxString(CONFIG.bbox)});
+  <script>
+    // ---------- Base map ----------
+    const lightBase = L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>, &copy; CARTO',
+        maxZoom: 19,
+      }
     );
-    out geom;
-  `;
 
-  /* ---------------------------- FETCH ALL ---------------------------- */
-  async function fetchAll(){
-    updateStatus("Fetching Grove St geometry…",12);
-    const groveJson = await overpassFetch(qGroveLine());
-
-    updateStatus("Fetching Montclair POIs…",28);
-    const [schoolsJson, transitJson, parksJson] = await Promise.all([
-      overpassFetch(qSchoolsArea()),
-      overpassFetch(qTransitArea()),
-      overpassFetch(qParksArea())
-    ]);
-
-    updateStatus("Fetching Eagle Rock boundary…",40);
-    const erGeomJson = await overpassFetch(qEagleRockGeom());
-    const erPoly = buildReservationPolygon(erGeomJson.elements||[]);
-
-    updateStatus("Fetching street/path network…",56);
-    const waysJson = await overpassFetch(qBikeableWays());
-
-    const groveSegments = (groveJson.elements||[]).filter(e=>e.type==="way"&&Array.isArray(e.geometry));
-    const groveLines = groveSegments.map(w => turf.lineString(w.geometry.map(g=>[g.lon,g.lat])));
-
-    const mapCentroid=(e)=>({lat:e.lat||e.center?.lat, lon:e.lon||e.center?.lon});
-    // Schools: Montclair-only, drop Southwest School
-    const schoolBlock = CONFIG.schoolBlockList.map(s=>s.toLowerCase());
-    const schools=(schoolsJson.elements||[]).map(e=>({ name:e.tags?.name||"School", ...mapCentroid(e), tags:e.tags||{} }))
-      .filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon))
-      .filter(p=> !schoolBlock.some(b => (p.name||"").toLowerCase().includes(b)) );
-
-    // Transit: allow-list only
-    const stationAllow = CONFIG.transitAllowList.map(s=>s.toLowerCase());
-    const transitAll=(transitJson.elements||[]).map(e=>({ name:e.tags?.name||"Rail station", ...mapCentroid(e), tags:e.tags||{} }))
-      .filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon));
-    const transit = transitAll.filter(t=> stationAllow.some(s => (t.name||"").toLowerCase().includes(s)) );
-
-    const parks=(parksJson.elements||[]).map(e=>({ name:e.tags?.name||"Park", ...mapCentroid(e), tags:e.tags||{} }))
-      .filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon));
-
-    const graph = buildGraph(waysJson.elements||[], erPoly);
-    const groveStartKeys = buildGroveStartNodes(graph, groveSegments);
-
-    const groveLatLngs = [];
-    for(const w of groveSegments){ for(const g of w.geometry){ groveLatLngs.push(L.latLng(g.lat,g.lon)); } }
-
-    return { groveSegments, groveLines, groveLatLngs, schools, transit, parks, graph, groveStartKeys, erPoly };
-  }
-
-  /* --------------------- POLYGON + GRAPH / ROUTER -------------------- */
-  function buildReservationPolygon(elements){
-    // Convert any way/relation with 'geom' into a (Multi)Polygon for Turf
-    const polys=[];
-    for(const e of elements){
-      const coords = (e.geometry||[]).map(g=>[g.lon,g.lat]);
-      if(!coords.length) continue;
-      // Overpass 'geom' for a closed way is a ring; for relations, we might get multiple rings.
-      if(coords.length>2 && coords[0][0]===coords[coords.length-1][0] && coords[0][1]===coords[coords.length-1][1]){
-        polys.push([coords]); // single ring polygon
-      }
-    }
-    if(!polys.length) return null;
-    return (polys.length===1) ? turf.polygon(polys[0]) : turf.multiPolygon(polys);
-  }
-
-  function isBikeableWay(tags){
-    const h=tags?.highway; if(!h) return false;
-    if(CONFIG.excludeHighways.has(h)) return false;
-    if(tags?.motor_vehicle==="no" || tags?.access==="private") return false;
-    if(h==="footway" && tags?.bicycle==="no") return false;
-    return true;
-  }
-
-  function buildGraph(elements, forbiddenPoly){
-    const nodes=new Map(), adj=new Map();
-    function addNode(lat,lon){ const k=toKey(lat,lon); if(!nodes.has(k)) nodes.set(k,{lat,lon,key:k}); if(!adj.has(k)) adj.set(k,[]); return k; }
-    function addEdge(a,b,w){ adj.get(a).push({to:b,w}); adj.get(b).push({to:a,w}); }
-
-    for(const e of elements){
-      if(e.type!=="way"||!Array.isArray(e.geometry)) continue;
-      if(!isBikeableWay(e.tags||{})) continue;
-      const pts=e.geometry.map(g=>({lat:g.lat,lon:g.lon}));
-      for(let i=0;i<pts.length-1;i++){
-        const a=pts[i], b=pts[i+1];
-        // If edge intersects Eagle Rock polygon, skip it
-        if(forbiddenPoly){
-          const seg = turf.lineString([[a.lon,a.lat],[b.lon,b.lat]]);
-          if(turf.booleanIntersects(seg, forbiddenPoly)) continue;
-        }
-        const aKey=addNode(a.lat,a.lon), bKey=addNode(b.lat,b.lon);
-        const w=haversineMeters(a,b);
-        if(Number.isFinite(w)&&w>0.1) addEdge(aKey,bKey,w);
-      }
-    }
-    const nodesArr=Array.from(nodes.values());
-    return { nodes, nodesArr, adj };
-  }
-
-  function buildGroveStartNodes(graph, groveSegments){
-    const s=new Set();
-    for(const w of groveSegments){ for(const g of w.geometry){ const k=toKey(g.lat,g.lon); if(graph.nodes.has(k)) s.add(k); } }
-    if(s.size<8){
-      for(const w of groveSegments){
-        for(const g of w.geometry){
-          let best=null, bestD=Infinity;
-          for(const n of graph.nodes.values()){
-            const d=haversineMeters({lat:g.lat,lon:g.lon}, n);
-            if(d<bestD){bestD=d;best=n;}
-          }
-          if(best && bestD<=20) s.add(best.key);
-        }
-      }
-    }
-    return Array.from(s);
-  }
-
-  function shortestPath(graph, startKey, endKey){
-    if(!graph.adj.has(startKey)||!graph.adj.has(endKey)) return null;
-    const dist=new Map([[startKey,0]]), prev=new Map(), heap=[];
-    function push(node,d){ heap.push({node,d}); up(heap.length-1); }
-    function up(i){ while(i>0){ const p=(i-1)>>1; if(heap[p].d<=heap[i].d) break; [heap[p],heap[i]]=[heap[i],heap[p]]; i=p; } }
-    function down(i){ const n=heap.length; for(;;){ let l=i*2+1,r=l+1,s=i; if(l<n&&heap[l].d<heap[s].d)s=l; if(r<n&&heap[r].d<heap[s].d)s=r; if(s===i)break; [heap[i],heap[s]]=[heap[s],heap[i]]; i=s; } }
-    function pop(){ if(!heap.length) return null; const t=heap[0]; const e=heap.pop(); if(heap.length){ heap[0]=e; down(0);} return t; }
-    push(startKey,0);
-    while(heap.length){
-      const {node:u,d}=pop(); if(u===endKey) break; if(d!==dist.get(u)) continue;
-      for(const {to,w} of (graph.adj.get(u)||[])){
-        const nd=d+w; if(nd<(dist.get(to)??Infinity)){ dist.set(to,nd); prev.set(to,u); push(to,nd); }
-      }
-    }
-    if(!dist.has(endKey)) return null;
-    const pathKeys=[]; let cur=endKey;
-    while(cur!==undefined){ pathKeys.push(cur); if(cur===startKey) break; cur=prev.get(cur); }
-    pathKeys.reverse(); if(pathKeys[0]!==startKey) return null;
-    return { pathKeys, meters: dist.get(endKey) };
-  }
-
-  function buildRoutePolyline(graph, pathKeys){ return pathKeys.map(k=>[graph.nodes.get(k).lat, graph.nodes.get(k).lon]); }
-
-  function nearestNodeKey(lat,lon, nodesArr){
-    let best=null,bestD=Infinity;
-    const cos=Math.cos(lat*Math.PI/180), kx=111320*cos, ky=111320;
-    for(const n of nodesArr){
-      const dx=(n.lon-lon)*kx, dy=(n.lat-lat)*ky; const d2=dx*dx+dy*dy;
-      if(d2<bestD){bestD=d2;best=n;}
-    }
-    return best?.key||null;
-  }
-
-  function computeRouteFromGreenway(graph, groveStartKeys, lat, lon){
-    if(!groveStartKeys.length) return null;
-    const endKey=nearestNodeKey(lat,lon, graph.nodesArr); if(!endKey) return null;
-    let bestStart=null,bestD=Infinity;
-    for(const gk of groveStartKeys){
-      const nd=graph.nodes.get(gk);
-      const d=haversineMeters({lat,lon}, nd);
-      if(d<bestD){bestD=d;bestStart=gk;}
-    }
-    if(!bestStart) return null;
-    return shortestPath(graph,bestStart,endKey);
-  }
-
-  /* ------------------------------- TESTS ----------------------------- */
-  function assert(c,m){ if(!c) throw new Error(m); }
-  function runTestsLibs(){
-    assert(typeof L!=="undefined"&&L.map,"Leaflet failed to load");
-    assert(typeof turf!=="undefined"&&turf.distance,"Turf failed to load");
-    const accent=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-    assert(/^#?[0-9a-fA-F]{3,8}$/.test(accent),"Theme color missing");
-  }
-  function runTestsData(data){
-    const {groveSegments,groveLines,schools,transit,parks,graph,groveStartKeys}=data;
-    assert(groveSegments.length>0,"No Grove St segments found");
-    assert(Array.isArray(groveLines)&&groveLines.length>0,"Grove lines malformed");
-    assert(graph?.nodes?.size>1000 && graph?.adj?.size>1000,"Street/path network too small");
-    assert(groveStartKeys.length>0,"No usable Greenway start nodes");
-    assert(schools.length>0,"No Montclair schools found");
-    assert(transit.length>0,"No Montclair rail stations found");
-    assert(parks.length>0,"No Montclair parks found");
-    const s=schools[0]; const sample=computeRouteFromGreenway(graph, groveStartKeys, s.lat, s.lon);
-    assert(sample && Number.isFinite(sample.meters) && sample.meters>0,"Sample route failed");
-  }
-  function summarize(data){
-    const s=`${data.schools.length} schools • ${data.transit.length} stations • ${data.parks.length} parks (Montclair)`;
-    const el=$('summary'); if(el) el.textContent=s;
-  }
-
-  /* ------------------------------- MAP UI ---------------------------- */
-  let map, groups={}, groveBounds, globalData;
-
-  function circleStyle(color){ return { radius:7, fillColor:color, color:"#fff", weight:1.5, opacity:1, fillOpacity:.95 }; }
-  function routeStyle(color){ return { color, weight:3, opacity:.9, lineJoin:'round' }; }
-  function nearestPointOnAnyLine(lat,lon,lineStrings){
-    let best=[lon,lat],bestD=Infinity;
-    for(const ls of lineStrings){ for(const c of ls.geometry.coordinates){ const d=(c[0]-lon)*(c[0]-lon)+(c[1]-lat)*(c[1]-lat); if(d<bestD){bestD=d;best=c;} } }
-    return best;
-  }
-  function fmtMi(m){ return (m/1609.344).toFixed(2); }
-  function fmtMin(min){ return Math.round(min); }
-
-  // Renderer with fallback policy; also blocks any fallback that would cross ER polygon
-  function addMarkersAndRoutes(arr,color,getPopupHTML,data,layerKey,options={}){
-    const {fallbackPolicy=null} = options;
-    const markers=L.layerGroup(), routes=L.layerGroup();
-    for(const o of arr){
-      const route=computeRouteFromGreenway(data.graph, data.groveStartKeys, o.lat, o.lon);
-      if(route){
-        const latlngs=buildRoutePolyline(data.graph, route.pathKeys);
-        L.polyline(latlngs, routeStyle(color)).addTo(routes);
-        o._routeMeters=route.meters; o._routeMin=(route.meters/CONFIG.metersPerMinuteBike);
-      }else if(typeof fallbackPolicy==='function'){
-        const style=fallbackPolicy(o);
-        if(style){
-          const near=nearestPointOnAnyLine(o.lat,o.lon,data.groveLines);
-          const seg=turf.lineString([[near[0],near[1]],[o.lon,o.lat]]);
-          // Block fallback if it intersects Eagle Rock polygon
-          if(!data.erPoly || !turf.booleanIntersects(seg, data.erPoly)){
-            L.polyline([[near[1],near[0]],[o.lat,o.lon]], style).addTo(routes);
-            const d=haversineMeters({lat:near[1],lon:near[0]}, {lat:o.lat,lon:o.lon});
-            o._routeMeters=d; o._routeMin=(d/CONFIG.metersPerMinuteBike);
-          }
-        }
-      }
-      L.circleMarker([o.lat,o.lon], circleStyle(color))
-        .bindPopup(getPopupHTML(o), {maxWidth:320})
-        .on('mouseover', function(){ this.openPopup(); })
-        .addTo(markers);
-    }
-    groups[layerKey+"_routes"]=routes.addTo(map);
-    groups[layerKey]=markers.addTo(map);
-  }
-
-  function renderMap(data){
-    globalData=data;
-    if(!map){
-      map=L.map('map',{scrollWheelZoom:true,zoomControl:true,preferCanvas:true});
-      L.tileLayer(CONFIG.tiles,{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
-    }
-    // Grove Street
-    const greens=[];
-    data.groveSegments.forEach(w=>{
-      const latlngs=w.geometry.map(g=>[g.lat,g.lon]);
-      greens.push(L.polyline(latlngs,{color:CONFIG.colors.greenway,weight:6,opacity:.95}));
+    const map = L.map("map", {
+      center: [40.84, -74.20], // placeholder; will be overridden by Grove bounds
+      zoom: 13,
+      layers: [lightBase],
+      zoomControl: true,
     });
-    groups.greenway=L.layerGroup(greens).addTo(map);
-    groveBounds=greens.reduce((b,pl)=>b.extend(pl.getBounds()), L.latLngBounds([]));
-    if(groveBounds.isValid()) map.fitBounds(groveBounds.pad(0.1));
+
+    // Custom panes for z-order of icons
+    // (higher zIndex = more front)
+    map.createPane("poiPane");
+    map.getPane("poiPane").style.zIndex = 410;
+
+    map.createPane("parksPane");
+    map.getPane("parksPane").style.zIndex = 420;
+
+    map.createPane("transitPane");
+    map.getPane("transitPane").style.zIndex = 430;
+
+    map.createPane("schoolsPane");
+    map.getPane("schoolsPane").style.zIndex = 440;
+
+    let overallBounds = L.latLngBounds();
+    let groveBounds = L.latLngBounds(); // for Grove Street Greenway focus
+
+    const overlayGroups = {}; // name -> L.LayerGroup
+
+    // ---------- Helper functions ----------
+
+    function extendOverallBounds(layer) {
+      try {
+        const b = layer.getBounds ? layer.getBounds() : null;
+        if (b && b.isValid()) {
+          overallBounds.extend(b);
+        }
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    function extendGroveBounds(layer) {
+      try {
+        const b = layer.getBounds ? layer.getBounds() : null;
+        if (b && b.isValid()) {
+          groveBounds.extend(b);
+        }
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    function bindBasicPopup(feature, layer, fallbackTitle) {
+      const props = feature.properties || {};
+      const title = props.name || fallbackTitle || "Feature";
+      const address = props.address;
+      const notes = props.notes || props.description || "";
+
+      let html = `<h3>${title}</h3>`;
+      if (address) html += `<p>${address}</p>`;
+      if (notes) html += `<p>${notes}</p>`;
+      layer.bindPopup(html);
+    }
+
+    function setLayerVisibility(name, visible) {
+      const group = overlayGroups[name];
+      if (!group) return;
+      if (visible) {
+        map.addLayer(group);
+      } else {
+        map.removeLayer(group);
+      }
+    }
+
+    // ---------- Vector icons (SVG via divIcon) ----------
+
+    const parkIcon = L.divIcon({
+      className: "",
+      html: `
+        <div class="custom-marker custom-marker-park">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <!-- Trunk -->
+            <rect x="10.5" y="12" width="3" height="7" rx="1" ry="1" fill="currentColor" />
+            <!-- Canopy: layered circles for a fuller tree -->
+            <circle cx="12" cy="10" r="4.5" fill="currentColor" />
+            <circle cx="9" cy="10.5" r="3" fill="currentColor" />
+            <circle cx="15" cy="10.5" r="3" fill="currentColor" />
+          </svg>
+        </div>
+      `,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -13],
+    });
+
+    const schoolIcon = L.divIcon({
+      className: "",
+      html: `
+        <div class="custom-marker custom-marker-school">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <!-- Roof (slightly narrower) -->
+            <polygon points="6,11 12,5 18,11" fill="currentColor" />
+
+            <!-- Left wing (narrower) -->
+            <rect x="5" y="11" width="3" height="7" fill="currentColor" />
+            <!-- Right wing (narrower) -->
+            <rect x="16" y="11" width="3" height="7" fill="currentColor" />
+
+            <!-- Center tower (narrower) -->
+            <rect x="10" y="10" width="4" height="9" fill="currentColor" />
+
+            <!-- Clock face -->
+            <circle cx="12" cy="12.4" r="1.4" fill="#ffffff" />
+
+            <!-- Clock hands -->
+            <line x1="12" y1="12.4" x2="12" y2="11.3"
+                  stroke="currentColor" stroke-width="0.7" stroke-linecap="round" />
+            <line x1="12" y1="12.4" x2="13.1" y2="12.4"
+                  stroke="currentColor" stroke-width="0.7" stroke-linecap="round" />
+
+            <!-- Door -->
+            <rect x="11.1" y="15" width="1.8" height="4" fill="#ffffff" rx="0.5" />
+
+            <!-- Wing windows -->
+            <rect x="5.3"  y="12.5" width="2.4" height="1.4"
+                  fill="#ffffff" opacity="0.85" />
+            <rect x="16.3" y="12.5" width="2.4" height="1.4"
+                  fill="#ffffff" opacity="0.85" />
+          </svg>
+        </div>
+      `,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -13],
+    });
+
+    const transitIcon = L.divIcon({
+      className: "",
+      html: `
+        <div class="custom-marker custom-marker-transit">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="5" y="5" width="14" height="11" rx="2" ry="2" fill="currentColor" />
+            <rect x="7" y="7" width="4" height="3" fill="#ffffff" />
+            <rect x="13" y="7" width="4" height="3" fill="#ffffff" />
+            <rect x="9" y="11" width="6" height="2" fill="#ffffff" />
+            <line x1="7" y1="18" x2="11" y2="21" stroke="currentColor" stroke-width="1.5" />
+            <line x1="17" y1="18" x2="13" y2="21" stroke="currentColor" stroke-width="1.5" />
+          </svg>
+        </div>
+      `,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -13],
+    });
+
+    const hospitalIcon = L.divIcon({
+      className: "",
+      html: `
+        <div class="custom-marker custom-marker-hospital">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="10" y="4" width="4" height="16" fill="currentColor" />
+            <rect x="4" y="10" width="16" height="4" fill="currentColor" />
+          </svg>
+        </div>
+      `,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -13],
+    });
+
+    const groceryIcon = L.divIcon({
+      className: "",
+      html: `
+        <div class="custom-marker custom-marker-grocery">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <!-- Cart basket -->
+            <rect x="6" y="9" width="11" height="6" rx="1" ry="1" fill="currentColor" />
+            <!-- Handle -->
+            <line x1="6" y1="9" x2="4" y2="5" stroke="currentColor" stroke-width="1.5" />
+            <!-- Wheels -->
+            <circle cx="9" cy="17" r="1.5" fill="currentColor" />
+            <circle cx="15" cy="17" r="1.5" fill="currentColor" />
+          </svg>
+        </div>
+      `,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -13],
+    });
+
+    const libraryIcon = L.divIcon({
+      className: "",
+      html: `
+        <div class="custom-marker custom-marker-library">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <!-- Closed book -->
+            <rect x="6" y="5" width="6" height="14" rx="1" ry="1" fill="currentColor" />
+            <!-- Pages hint -->
+            <rect x="7" y="6" width="4" height="12" fill="#ffffff" opacity="0.8" />
+            <!-- Second book/spine -->
+            <rect x="12" y="7" width="5" height="12" rx="1" ry="1"
+                  fill="currentColor" opacity="0.85" />
+          </svg>
+        </div>
+      `,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -13],
+    });
+
+    // ---------- Point styling ----------
+
+    // Points of Interest (grocery, library, hospital, etc.)
+    function poiPointToLayer(feature, latlng) {
+      const props = feature.properties || {};
+      const cat = (props.category || "").toLowerCase();
+
+      if (cat === "hospital") {
+        return L.marker(latlng, { icon: hospitalIcon, pane: "poiPane" });
+      }
+      if (cat === "grocery") {
+        return L.marker(latlng, { icon: groceryIcon, pane: "poiPane" });
+      }
+      if (cat === "library") {
+        return L.marker(latlng, { icon: libraryIcon, pane: "poiPane" });
+      }
+
+      // Fallback / mixed-use / other POIs as purple dots
+      const styles = getComputedStyle(document.documentElement);
+      let fill = styles.getPropertyValue("--accent-purple") || "#6a3d9a";
+
+      return L.circleMarker(latlng, {
+        pane: "poiPane",
+        radius: 7,
+        weight: 1.5,
+        color: "#ffffff",
+        fillColor: (fill && fill.trim()) || fill,
+        fillOpacity: 0.95,
+      });
+    }
+
+    function poiOnEachFeature(feature, layer) {
+      const props = feature.properties || {};
+      const cat = (props.category || "").toLowerCase();
+      let emoji = "📍";
+      if (cat === "grocery") emoji = "🛒";
+      else if (cat === "library") emoji = "📚";
+      else if (cat === "hospital") emoji = "🏥";
+      else if (cat === "mixed-use") emoji = "🏙️";
+
+      const title = `${emoji} ${props.name || "Point of Interest"}`;
+      const address = props.address;
+      const notes = props.notes || "";
+
+      let html = `<h3>${title}</h3>`;
+      if (address) html += `<p>${address}</p>`;
+      if (notes) html += `<p>${notes}</p>`;
+      layer.bindPopup(html);
+    }
+
+    // Parks
+    function parkPointToLayer(feature, latlng) {
+      return L.marker(latlng, { icon: parkIcon, pane: "parksPane" });
+    }
+
+    function parkOnEachFeature(feature, layer) {
+      const props = feature.properties || {};
+      const title = `🌳 ${props.name || "Park"}`;
+      const address = props.address;
+      const notes = props.notes || props.entrance_description || "";
+
+      let html = `<h3>${title}</h3>`;
+      if (address) html += `<p>${address}</p>`;
+      if (notes) html += `<p>${notes}</p>`;
+      layer.bindPopup(html);
+    }
 
     // Schools
-    addMarkersAndRoutes(
-      data.schools, CONFIG.colors.schools,
-      (o)=> Number.isFinite(o._routeMeters)
-        ? `<div><strong>${o.name}</strong></div><div class="small">Bike route: <strong>${fmtMi(o._routeMeters)} mi</strong> • ~<strong>${fmtMin(o._routeMin)} min</strong></div>`
-        : `<div><strong>${o.name}</strong></div><div class="small">Approx. distance from Grove shown</div>`,
-      data, "schools",
-      { fallbackPolicy:()=>({color:CONFIG.colors.schools, weight:2, opacity:.8, dashArray:'6 6'}) }
-    );
+    function schoolPointToLayer(feature, latlng) {
+      return L.marker(latlng, { icon: schoolIcon, pane: "schoolsPane" });
+    }
 
-    // Transit — draw only real routes; fallback only for Bay Street (solid)
-    addMarkersAndRoutes(
-      data.transit, CONFIG.colors.transit,
-      (o)=> Number.isFinite(o._routeMeters)
-        ? `<div><strong>${o.name}</strong></div><div class="small">Bike route: <strong>${fmtMi(o._routeMeters)} mi</strong> • ~<strong>${fmtMin(o._routeMin)} min</strong></div><div class="small">${o.tags.operator||"NJ TRANSIT"}</div>`
-        : `<div><strong>${o.name}</strong></div><div class="small">Direct path shown to Bay Street only</div><div class="small">${o.tags.operator||"NJ TRANSIT"}</div>`,
-      data, "transit",
-      { fallbackPolicy:(o)=> (o.name||"").toLowerCase().includes("bay street") ? {color:CONFIG.colors.transit, weight:3, opacity:.95} : null }
-    );
+    function schoolOnEachFeature(feature, layer) {
+      const props = feature.properties || {};
+      const title = `🏫 ${props.name || "School"}`;
+      const address = props.address;
+      const level = props.level;
+      const grades = props.grades;
+      const notes = props.notes || "";
 
-    // Parks (start hidden)
-    addMarkersAndRoutes(
-      data.parks, CONFIG.colors.parks,
-      (o)=> Number.isFinite(o._routeMeters)
-        ? `<div><strong>${o.name}</strong></div><div class="small">Bike route: <strong>${fmtMi(o._routeMeters)} mi</strong> • ~<strong>${fmtMin(o._routeMin)} min</strong></div>`
-        : `<div><strong>${o.name}</strong></div><div class="small">Approx. distance from Grove shown</div>`,
-      data, "parks",
-      { fallbackPolicy:()=>({color:CONFIG.colors.parks, weight:2, opacity:.8, dashArray:'6 6'}) }
-    );
-    if(groups.parks && groups.parks_routes){ map.removeLayer(groups.parks); map.removeLayer(groups.parks_routes); }
+      let html = `<h3>${title}</h3>`;
+      if (address) html += `<p>${address}</p>`;
+      if (level || grades) {
+        html += `<p>${[level, grades].filter(Boolean).join(" • ")}</p>`;
+      }
+      if (notes) html += `<p>${notes}</p>`;
+      layer.bindPopup(html);
+    }
 
-    // Toggles
-    document.querySelectorAll('#layerToggles input[type="checkbox"]').forEach(cb=>{
-      cb.addEventListener('change',(e)=>{
-        const key=e.target.getAttribute('data-layer');
-        const markers=groups[key], routes=groups[key+"_routes"];
-        if(key==="greenway" && groups.greenway){
-          e.target.checked ? groups.greenway.addTo(map) : map.removeLayer(groups.greenway); return;
-        }
-        if(markers && routes){
-          if(e.target.checked){ markers.addTo(map); routes.addTo(map); }
-          else { map.removeLayer(markers); map.removeLayer(routes); }
-        }
-      });
+    // Transit
+    function transitPointToLayer(feature, latlng) {
+      return L.marker(latlng, { icon: transitIcon, pane: "transitPane" });
+    }
+
+    function transitOnEachFeature(feature, layer) {
+      const props = feature.properties || {};
+      const mode = (props.mode || "").toLowerCase();
+      const line = props.line;
+      let emoji = "🚆";
+
+      if (mode.includes("bus")) emoji = "🚌";
+      if (mode.includes("light_rail")) emoji = "🚈";
+
+      const title = `${emoji} ${props.name || "Transit stop"}`;
+      const address = props.address;
+      const notes = props.notes || "";
+
+      let html = `<h3>${title}</h3>`;
+      if (line) html += `<p>${line}</p>`;
+      if (address) html += `<p>${address}</p>`;
+      if (notes) html += `<p>${notes}</p>`;
+      layer.bindPopup(html);
+    }
+
+    // Generic line style builder
+    function makeLineStyle(color, weight, dashArray, opacity) {
+      return {
+        color,
+        weight,
+        dashArray: dashArray || null,
+        opacity: opacity != null ? opacity : 0.9,
+      };
+    }
+
+    // ---------- Layer configuration ----------
+
+    const layerConfigs = [
+      {
+        name: "Grove Street Greenway",
+        key: "grove-main",
+        file: "grove-street-greenway.geojson",
+        kind: "grove",
+      },
+      {
+        name: "Elm + Orange Extension (South End Connector)",
+        key: "grove-elm-orange",
+        file: "MTC_Orang-Elm-Extension.geojson",
+        kind: "grove",
+      },
+      {
+        name: "Essex–Hudson Greenway",
+        key: "ehg",
+        file: "essex-hudson-greenway.geojson",
+        kind: "line",
+        colorVariable: "--accent-teal",
+        fallbackColor: "#1f9fb5",
+        weight: 4,
+      },
+      {
+        name: "Lenape Trail",
+        key: "lenape",
+        file: "Lenape-trail.geojson",
+        kind: "line",
+        colorVariable: "--accent-yellow",
+        fallbackColor: "#f6c915",
+        weight: 3,
+        dashArray: "6 4",
+        defaultOn: false, // OFF by default
+      },
+      {
+        name: "Morris Canal Greenway (Proposed)",
+        key: "morris",
+        file: "Morris-Canal.geojson",
+        kind: "line",
+        colorVariable: "--accent-teal",
+        fallbackColor: "#1f9fb5",
+        weight: 3,
+        dashArray: "4 4",
+        defaultOn: false, // OFF by default
+      },
+      {
+        name: "Montclair Transit Hubs",
+        key: "transit",
+        file: "montclair_transit.geojson",
+        kind: "transit",
+      },
+      {
+        name: "Montclair Points of Interest",
+        key: "pois",
+        file: "mtc-points-of-interest.geojson",
+        kind: "poi",
+      },
+      {
+        name: "Montclair Parks",
+        key: "parks",
+        file: "mtc-parks.geojson",
+        kind: "parks",
+      },
+      {
+        name: "Montclair Schools",
+        key: "schools",
+        file: "mtc_schools.geojson",
+        kind: "schools",
+      }
+    ];
+
+    // Pre-create groups
+    layerConfigs.forEach(cfg => {
+      overlayGroups[cfg.name] = L.layerGroup();
+      if (cfg.defaultOn !== false) {
+        overlayGroups[cfg.name].addTo(map);
+      }
     });
 
-    // Grove Focus
-    const focusBtn=$('focusGroveBtn'); if(focusBtn){ focusBtn.onclick=()=> focusGrove(); }
+    // ---------- Combined Layers + Legend Control ----------
 
-    summarize(data);
-  }
+    const LayersLegendControl = L.Control.extend({
+      options: {
+        position: "topright"
+      },
 
-  /* --------------------------- FOCUS / VIEW -------------------------- */
-  function computeCentroid(latlngs){ let lat=0,lon=0; for(const p of latlngs){ lat+=p.lat; lon+=p.lng; } return L.latLng(lat/latlngs.length, lon/latlngs.length); }
-  function projectedSpanAtZoom(latlngs, z){
-    const crs=map.options.crs; let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
-    for(const p of latlngs){ const pt=crs.latLngToPoint(p,z); if(pt.x<minX)minX=pt.x; if(pt.x>maxX)maxX=pt.x; if(pt.y<minY)minY=pt.y; if(pt.y>maxY)maxY=pt.y; }
-    return { w:maxX-minX, h:maxY-minY };
-  }
-  function chooseBestZoomForGrove(latlngs){
-    const size=map.getSize(), target=Math.min(size.x,size.y)*CONFIG.focusFill; let lo=12,hi=19,best=16;
-    while(lo<=hi){ const mid=Math.floor((lo+hi)/2); const span=projectedSpanAtZoom(latlngs, mid); const m=Math.max(span.w,span.h);
-      if(m<target){ best=mid; lo=mid+1; } else { hi=mid-1; } }
-    return best;
-  }
-  function focusGrove(){ if(!globalData) return; const c=computeCentroid(globalData.groveLatLngs); const z=chooseBestZoomForGrove(globalData.groveLatLngs); map.setView(c,z,{animate:true}); }
+      onAdd: function(map) {
+        const container = L.DomUtil.create("div", "layers-legend-control leaflet-bar");
 
-  /* ------------------------------- BOOT ------------------------------ */
-  async function boot(){
-    try{
-      updateStatus("Verifying libraries & theme…",8); runTestsLibs();
-      const data=await fetchAll();
-      updateStatus("Validating data & routing…",78); runTestsData(data);
-      updateStatus("Rendering map…",92); renderMap(data);
-      updateStatus("All checks passed ✓",100);
-      setTimeout(()=>{ const ov=$('overlay'); if(ov) ov.style.display='none'; },250);
-      setTimeout(()=> focusGrove(),150);
-    }catch(err){
-      console.error(err);
-      const ov=$('overlay'); const card=ov?ov.querySelector('.card'):null;
-      if(card){ card.innerHTML=`<div class="error">We couldn’t verify everything needed to render the map.</div>
-        <p class="small">Details:</p><pre class="mono" style="white-space:pre-wrap">${(err&&err.message)?err.message:String(err)}</pre>
-        <button class="btn" onclick="location.reload()">Reload</button>`; }
-    }
-  }
+        const header = L.DomUtil.create("div", "layers-legend-header", container);
+        const title = L.DomUtil.create("div", "layers-legend-title", header);
+        title.textContent = "Layers & Legend";
 
-  // Dev-only rerun hook
-  window.rerunChecks=function(){ const ov=$('overlay'),bar=$('bar'),status=$('status'); if(ov) ov.style.display='flex'; if(bar) bar.style.width='12%'; if(status) status.textContent='Re-running checks…'; setTimeout(()=>boot(),60); };
+        const icon = L.DomUtil.create("div", "layers-legend-toggle-icon", header);
+        icon.innerHTML = "☰";
 
-  // Keep Grove prominent on resize
-  let _resizeTimer; window.addEventListener('resize',()=>{ clearTimeout(_resizeTimer); _resizeTimer=setTimeout(()=>{ if(typeof focusGrove==='function') focusGrove(); },200); });
+        const body = L.DomUtil.create("div", "layers-legend-body", container);
 
-  boot();
-});
-</script>
+        // Prevent map interactions when using the panel
+        L.DomEvent.disableClickPropagation(container);
+        L.DomEvent.disableScrollPropagation(container);
+
+        // Sections
+        const linesLabel = L.DomUtil.create("div", "layer-section-label", body);
+        linesLabel.textContent = "Network";
+
+        const lineLayers = [
+          { cfgName: "Grove Street Greenway", cssClass: "grove-main", text: "Grove Greenway" },
+          { cfgName: "Elm + Orange Extension (South End Connector)", cssClass: "grove-elm-orange", text: "Elm/Orange (concept)" },
+          { cfgName: "Essex–Hudson Greenway", cssClass: "trail-teal", text: "Essex–Hudson Greenway" },
+          { cfgName: "Lenape Trail", cssClass: "trail-yellow dashed", text: "Lenape Trail" },
+          { cfgName: "Morris Canal Greenway (Proposed)", cssClass: "trail-teal dashed", text: "Morris Canal (proposed)" }
+        ];
+
+        lineLayers.forEach(layerInfo => {
+          const row = L.DomUtil.create("label", "layer-row", body);
+          const input = L.DomUtil.create("input", "", row);
+          input.type = "checkbox";
+          input.checked = (layerConfigs.find(c => c.name === layerInfo.cfgName)?.defaultOn !== false);
+          input.dataset.layerName = layerInfo.cfgName;
+
+          const symbol = L.DomUtil.create("span", "layer-symbol layer-symbol-line " + layerInfo.cssClass, row);
+          const labelSpan = L.DomUtil.create("span", "layer-label", row);
+          labelSpan.textContent = layerInfo.text;
+        });
+
+        const pointsLabel = L.DomUtil.create("div", "layer-section-label", body);
+        pointsLabel.textContent = "Places";
+
+        const pointLayers = [
+          { cfgName: "Montclair Transit Hubs", cssClass: "dot-transit", text: "Transit hubs" },
+          { cfgName: "Montclair Parks", cssClass: "dot-park", text: "Parks" },
+          { cfgName: "Montclair Schools", cssClass: "dot-school", text: "Schools" },
+          { cfgName: "Montclair Points of Interest", cssClass: "dot-poi", text: "Points of interest" }
+        ];
+
+        pointLayers.forEach(layerInfo => {
+          const row = L.DomUtil.create("label", "layer-row", body);
+          const input = L.DomUtil.create("input", "", row);
+          input.type = "checkbox";
+          input.checked = (layerConfigs.find(c => c.name === layerInfo.cfgName)?.defaultOn !== false);
+          input.dataset.layerName = layerInfo.cfgName;
+
+          const symbol = L.DomUtil.create("span", "layer-symbol layer-symbol-dot " + layerInfo.cssClass, row);
+          const labelSpan = L.DomUtil.create("span", "layer-label", row);
+          labelSpan.textContent = layerInfo.text;
+        });
+
+        // Wire up the checkboxes
+        const inputs = container.querySelectorAll("input[type='checkbox']");
+        inputs.forEach(input => {
+          input.addEventListener("change", (e) => {
+            const name = e.target.dataset.layerName;
+            setLayerVisibility(name, e.target.checked);
+          });
+        });
+
+        // Collapse / expand behavior
+        header.addEventListener("click", () => {
+          container.classList.toggle("collapsed");
+        });
+
+        return container;
+      }
+    });
+
+    const layersLegendControl = new LayersLegendControl();
+    map.addControl(layersLegendControl);
+
+    // ---------- Load layers ----------
+
+    const promises = [];
+
+    layerConfigs.forEach((cfg) => {
+      const group = overlayGroups[cfg.name];
+
+      const promise = fetch(cfg.file)
+        .then((resp) => resp.json())
+        .then((geojson) => {
+          let opts = {};
+
+          if (cfg.kind === "grove") {
+            // Grove-style halo + core green line
+            const rootStyles = getComputedStyle(
+              document.documentElement
+            );
+
+            const groveGreen =
+              rootStyles.getPropertyValue("--grove-green").trim() || "#2ca25f";
+            const groveGreenProposed =
+              rootStyles
+                .getPropertyValue("--grove-green-proposed")
+                .trim() || "#1b7a3a";
+            const haloColor =
+              rootStyles
+                .getPropertyValue("--grove-green-halo")
+                .trim() || "#c7e9c0";
+
+            const isElmOrange =
+              cfg.name.indexOf("Elm + Orange Extension") !== -1 ||
+              cfg.name.indexOf("Elm/Orange") !== -1;
+
+            const coreColor = isElmOrange ? groveGreenProposed : groveGreen;
+            const coreOpacity = isElmOrange ? 0.75 : 0.95; // ~25% transparent vs Grove
+            const haloOpacity = isElmOrange ? 0.45 : 0.55;
+            const haloWeight = isElmOrange ? 8 : 10;
+            const coreWeight = 6;
+
+            // Halo layer
+            const haloLayer = L.geoJSON(geojson, {
+              filter: (f) =>
+                f.geometry &&
+                (f.geometry.type === "LineString" ||
+                  f.geometry.type === "MultiLineString"),
+              style: {
+                color: haloColor,
+                weight: haloWeight,
+                opacity: haloOpacity,
+              },
+            });
+
+            // Core green line
+            const coreLayer = L.geoJSON(geojson, {
+              filter: (f) =>
+                f.geometry &&
+                (f.geometry.type === "LineString" ||
+                  f.geometry.type === "MultiLineString"),
+              style: {
+                color: coreColor,
+                weight: coreWeight,
+                opacity: coreOpacity,
+              },
+              onEachFeature: (feature, layer) => {
+                bindBasicPopup(feature, layer, cfg.name);
+              },
+            });
+
+            haloLayer.addTo(group);
+            coreLayer.addTo(group);
+
+            // Center on Grove + Elm/Orange together
+            extendGroveBounds(coreLayer);
+
+            extendOverallBounds(coreLayer);
+
+            return;
+          }
+
+          if (cfg.kind === "line") {
+            const colorVar = cfg.colorVariable
+              ? getComputedStyle(document.documentElement).getPropertyValue(
+                  cfg.colorVariable
+                )
+              : "";
+            const lineColor =
+              (colorVar && colorVar.trim()) ||
+              cfg.fallbackColor ||
+              "#1f9fb5";
+
+            const opacity = 0.9;
+
+            opts = {
+              style: () =>
+                makeLineStyle(lineColor, cfg.weight || 3, cfg.dashArray, opacity),
+              onEachFeature: (feature, layer) => {
+                bindBasicPopup(feature, layer, cfg.name);
+              },
+            };
+
+            const lineLayer = L.geoJSON(geojson, opts).addTo(group);
+            extendOverallBounds(lineLayer);
+            return;
+          }
+
+          if (cfg.kind === "poi") {
+            opts = {
+              pointToLayer: poiPointToLayer,
+              onEachFeature: poiOnEachFeature,
+            };
+          } else if (cfg.kind === "parks") {
+            opts = {
+              pointToLayer: parkPointToLayer,
+              onEachFeature: parkOnEachFeature,
+            };
+          } else if (cfg.kind === "schools") {
+            opts = {
+              pointToLayer: schoolPointToLayer,
+              onEachFeature: schoolOnEachFeature,
+            };
+          } else if (cfg.kind === "transit") {
+            opts = {
+              pointToLayer: transitPointToLayer,
+              onEachFeature: transitOnEachFeature,
+            };
+          }
+
+          const layer = L.geoJSON(geojson, opts).addTo(group);
+          extendOverallBounds(layer);
+        })
+        .catch((err) => {
+          console.error(`Failed to load ${cfg.file}`, err);
+        });
+
+      promises.push(promise);
+    });
+
+    Promise.all(promises).then(() => {
+      // Prefer fitting to Grove Street Greenway; fall back to all layers if needed
+      if (groveBounds.isValid()) {
+        map.fitBounds(groveBounds.pad(0.08));
+      } else if (overallBounds.isValid()) {
+        map.fitBounds(overallBounds.pad(0.08));
+      }
+    });
+
+    // ---------- Notes ----------
+    // - For local testing, run a simple static server in this folder:
+    //     python -m http.server 8000
+    //   then open: http://localhost:8000
+    //
+    // - To embed in Google Sites:
+    //     1. Host this file + GeoJSON on GitHub Pages / Netlify / etc.
+    //     2. Use "Embed" -> "By URL" and paste the map page URL.
+  </script>
 </body>
 </html>
