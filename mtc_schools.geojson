@@ -29,7 +29,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2128, 40.8153]
+        "coordinates": [-74.21361497761184, 40.809192523746276]
       }
     },
     {
@@ -89,7 +89,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.201737, 40.83996]
+        "coordinates": [-74.19383043097918, 40.84611302800494]
       }
     },
     {
@@ -179,7 +179,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2182, 40.8188]
+        "coordinates": [-74.22214049291418, 40.81546166725826]
       }
     },
     {
@@ -194,7 +194,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2075, 40.8385]
+        "coordinates": [-74.20729234688932, 40.8408515551773]
       }
     },
     {
@@ -209,7 +209,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2058, 40.8425]
+        "coordinates": [-74.20449179106552, 40.83899010964655]
       }
     },
     {
@@ -224,7 +224,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2125, 40.8285]
+        "coordinates": [-74.20026448126393, 40.84242503424038]
       }
     },
     {
@@ -239,7 +239,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2148, 40.8165]
+        "coordinates": [-74.21049086407844, 40.820968977266055]
       }
     },
     {
@@ -254,7 +254,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2088, 40.8398]
+        "coordinates": [-74.20435847757099, 40.841733636103164]
       }
     },
     {
@@ -269,7 +269,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2082, 40.8392]
+        "coordinates": [-74.20126367941747, 40.84217456878279]
       }
     },
     {
@@ -299,7 +299,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2098, 40.8258]
+        "coordinates": [-74.21713098865129, 40.826916986453945]
       }
     },
     {
@@ -314,22 +314,7 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2135, 40.8268]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Montclair State University",
-        "address": "1 Normal Ave, Montclair, NJ 07043",
-        "type": "public",
-        "level": "university",
-        "grades": "Higher Ed",
-        "notes": "R2 Doctoral Research University; ~21,000 students"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.196948, 40.864768]
+        "coordinates": [-74.22654351545394, 40.82213720104844]
       }
     }
   ]

@@ -50,21 +50,6 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Upper Montclair",
-        "address": "Bellevue Ave at N Mountain Ave, Upper Montclair, NJ",
-        "line": "Montclair-Boonton Line",
-        "accessible": false,
-        "parking": "89 spaces (Lot 1)",
-        "notes": "Rebuilt 2010 after 2006 fire; National Register of Historic Places"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.2085, 40.8395]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "name": "Mountain Avenue",
         "address": "Upper Mountain Ave at Glenwood Pl, Montclair, NJ",
         "line": "Montclair-Boonton Line",
@@ -74,38 +59,92 @@
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2062, 40.8468]
+        "coordinates": [-74.20547663524076, 40.848993153750754]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Montclair Heights",
-        "address": "Normal Ave at Carlisle Rd, Montclair, NJ",
+        "name": "Bay Street Station",
+        "mode": "rail",
+        "operator": "NJ Transit",
         "line": "Montclair-Boonton Line",
-        "accessible": true,
-        "parking": "Street",
-        "notes": "Mini-high platforms; near MSU south entrance"
+        "notes": "Primary Montclair NJT rail terminal; major transfer and park-and-ride"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.2035, 40.8545]
+        "coordinates": [-74.20799, 40.809311]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "name": "Montclair State University",
-        "address": "100 Clove Rd, Little Falls, NJ",
+        "name": "Walnut Street Station and shopping district",
+        "mode": "rail",
+        "operator": "NJ Transit",
         "line": "Montclair-Boonton Line",
-        "accessible": true,
-        "parking": "Campus lots",
-        "notes": "Opened 2004; technically in Little Falls"
+        "notes": "Neighborhood main street node; station adjacent to Walnut St business district"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-74.1948, 40.8685]
+        "coordinates": [-74.209806, 40.817306]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Watchung Plaza and Train Station",
+        "mode": "rail",
+        "operator": "NJ Transit",
+        "line": "Montclair-Boonton Line",
+        "notes": "Watchung Plaza commercial district and station area"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.20653, 40.82954]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Upper Montclair Station",
+        "mode": "rail",
+        "operator": "NJ Transit",
+        "line": "Montclair-Boonton Line",
+        "notes": "Station immediately next to Upper Montclair business district"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.20959, 40.84204]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Upper Montclair Station and Business District (Valley Rd & Bellevue Ave)",
+        "mode": "bus_hub",
+        "operator": "NJ Transit / Boxcar / local",
+        "notes": "Valley & Bellevue commercial core; key transit transfer node. Coordinates approximate via Upper Montclair Station."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.20959, 40.84204]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Montclair Heights Station",
+        "mode": "rail",
+        "operator": "NJ Transit",
+        "line": "Montclair-Boonton Line",
+        "notes": "Serves northern Montclair & Montclair State University campus (south end)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.20256723391289, 40.85788795909659]
       }
     }
+    
   ]
 }
