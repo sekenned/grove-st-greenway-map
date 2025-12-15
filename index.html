@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Grove Street Greenway Map</title>
 
   <!-- Leaflet CSS -->
@@ -19,11 +20,10 @@
       --grove-green-proposed: #1b7a3a; /* darker green for Elm/Orange option */
       --grove-green-halo: #c7e9c0;
 
-      --accent-blue: #2563eb;
       --accent-orange: #f97316;    /* transit */
-      --accent-red: #e31a1c;
+      --accent-red: #e31a1c;       /* hospital */
       --accent-purple: #6a3d9a;    /* all POIs (incl. grocery + library) */
-      --accent-teal: #1f9fb5;
+      --accent-teal: #1f9fb5;      /* regional lines */
       --accent-yellow: #f6c915;    /* Lenape yellow */
       --schools-blue: #1d4ed8;     /* Montclair royal blue */
 
@@ -32,14 +32,11 @@
       --bg: #ffffff;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
       color: #111827;
       display: flex;
@@ -87,16 +84,12 @@
       font-size: 0.85rem;
       line-height: 1.3;
     }
-
     .leaflet-popup-content h3 {
       margin: 0 0 0.15rem;
       font-size: 0.95rem;
       font-weight: 600;
     }
-
-    .leaflet-popup-content p {
-      margin: 0.1rem 0;
-    }
+    .leaflet-popup-content p { margin: 0.1rem 0; }
 
     /* Combined Layers + Legend control */
     .layers-legend-control {
@@ -108,7 +101,7 @@
       font-size: 0.8rem;
       color: var(--text-muted);
       backdrop-filter: blur(4px);
-      min-width: 210px;
+      min-width: 230px;
     }
 
     .layers-legend-header {
@@ -129,28 +122,23 @@
     }
 
     .layers-legend-toggle-icon {
-      width: 18px;
-      height: 18px;
+      width: 22px;
+      height: 22px;
       border-radius: 999px;
       border: 1px solid var(--border-soft);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       color: #4b5563;
       background: #ffffff;
     }
 
-    .layers-legend-body {
-      margin-top: 0.25rem;
-    }
-
-    .layers-legend-control.collapsed .layers-legend-body {
-      display: none;
-    }
+    .layers-legend-body { margin-top: 0.25rem; }
+    .layers-legend-control.collapsed .layers-legend-body { display: none; }
 
     .layer-section-label {
-      margin: 0.3rem 0 0.1rem;
+      margin: 0.35rem 0 0.15rem;
       font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
@@ -161,81 +149,63 @@
     .layer-row {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
-      margin: 0.1rem 0;
+      gap: 0.45rem;
+      margin: 0.18rem 0;
       line-height: 1.2;
     }
 
     .layer-row input[type="checkbox"] {
-      width: 13px;
-      height: 13px;
+      width: 14px;
+      height: 14px;
       margin: 0;
       cursor: pointer;
     }
 
-    .layer-symbol {
-      flex: 0 0 auto;
-    }
+    .layer-symbol { flex: 0 0 auto; }
 
     .layer-label {
       flex: 1 1 auto;
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       color: #111827;
     }
 
     .layer-symbol-line {
-      width: 26px;
+      width: 28px;
       height: 3px;
       border-radius: 999px;
+      background: #999;
+      position: relative;
     }
 
-    .layer-symbol-line.grove-main {
-      background: var(--grove-green);
-    }
+    .line-grove-main { background: var(--grove-green); }
+    .line-grove-elm { background: var(--grove-green); opacity: 0.75; }
+    .line-teal { background: var(--accent-teal); }
+    .line-yellow { background: var(--accent-yellow); }
 
-    .layer-symbol-line.grove-elm-orange {
-      background: var(--grove-green);
-      opacity: 0.75;
+    /* Simple dashed treatment using repeating background */
+    .is-dashed {
+      background: repeating-linear-gradient(
+        to right,
+        currentColor 0,
+        currentColor 8px,
+        transparent 8px,
+        transparent 14px
+      );
+      color: rgba(15, 23, 42, 0.35);
     }
-
-    .layer-symbol-line.trail-teal {
-      background: var(--accent-teal);
-    }
-
-    .layer-symbol-line.trail-yellow {
-      background: var(--accent-yellow);
-    }
-
-    .layer-symbol-line.dashed {
-      border-bottom: 2px dashed rgba(15, 23, 42, 0.4);
-      background: transparent;
-    }
+    .is-dashed.line-teal { color: rgba(31, 159, 181, 0.9); }
+    .is-dashed.line-yellow { color: rgba(246, 201, 21, 0.95); }
 
     .layer-symbol-dot {
-      width: 10px;
-      height: 10px;
+      width: 11px;
+      height: 11px;
       border-radius: 999px;
     }
-
-    .dot-transit {
-      background: var(--accent-orange);
-    }
-
-    .dot-poi {
-      background: var(--accent-purple);
-    }
-
-    .dot-hospital {
-      background: var(--accent-red);
-    }
-
-    .dot-park {
-      background: var(--grove-green);
-    }
-
-    .dot-school {
-      background: var(--schools-blue);
-    }
+    .dot-transit { background: var(--accent-orange); }
+    .dot-poi { background: var(--accent-purple); }
+    .dot-park { background: var(--grove-green); }
+    .dot-school { background: var(--schools-blue); }
+    .dot-hospital { background: var(--accent-red); }
 
     /* Custom vector marker styling (for map markers) */
     .custom-marker {
@@ -249,38 +219,82 @@
       box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
       border: 1px solid var(--border-soft);
     }
+    .custom-marker svg { width: 18px; height: 18px; display: block; }
 
-    .custom-marker svg {
-      width: 18px;
-      height: 18px;
-      display: block;
-    }
+    .custom-marker-park { color: var(--grove-green); }
+    .custom-marker-school { color: var(--schools-blue); }
+    .custom-marker-transit { color: var(--accent-orange); }
+    .custom-marker-hospital { color: var(--accent-red); }
+    .custom-marker-grocery { color: var(--accent-purple); }
+    .custom-marker-library { color: var(--accent-purple); }
 
-    .custom-marker-park {
-      color: var(--grove-green);
-    }
+    /* ---------------- Mobile upgrades ---------------- */
+    @media (max-width: 640px) {
+      header { padding: 0.9rem 1rem 0.6rem; }
+      #map-container { padding: 0; }
 
-    .custom-marker-school {
-      color: var(--schools-blue);
-    }
+      /* Full-bleed map on mobile */
+      #map {
+        height: calc(100vh - 86px);
+        max-width: none;
+        margin: 0;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+      }
 
-    .custom-marker-transit {
-      color: var(--accent-orange);
-    }
+      /* Bigger Leaflet zoom buttons */
+      .leaflet-control-zoom a {
+        width: 42px;
+        height: 42px;
+        line-height: 42px;
+        font-size: 20px;
+      }
 
-    .custom-marker-hospital {
-      color: var(--accent-red);
-    }
+      /* Bigger popups */
+      .leaflet-popup-content {
+        font-size: 0.95rem;
+        line-height: 1.35;
+      }
 
-    .custom-marker-grocery {
-      color: var(--accent-purple);
-    }
+      /* Bottom-sheet style layers/legend */
+      .leaflet-top.leaflet-right {
+        top: auto;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 0;
+        margin: 0;
+      }
 
-    .custom-marker-library {
-      color: var(--accent-purple);
+      .layers-legend-control {
+        border-radius: 16px 16px 0 0;
+        margin: 0;
+        width: 100vw;
+        min-width: 0;
+        padding: 0.7rem 0.9rem 0.6rem;
+        box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.18);
+      }
+
+      .layers-legend-title { font-size: 0.85rem; }
+      .layer-section-label { font-size: 0.78rem; margin-top: 0.55rem; }
+
+      /* Bigger tap targets */
+      .layer-row { gap: 0.55rem; margin: 0.35rem 0; }
+      .layer-row input[type="checkbox"] { width: 18px; height: 18px; }
+      .layer-label { font-size: 0.95rem; }
+
+      /* Bigger legend symbols */
+      .layer-symbol-line { width: 36px; height: 4px; }
+      .layer-symbol-dot { width: 14px; height: 14px; }
+
+      /* Bigger marker “chips” */
+      .custom-marker { width: 34px; height: 34px; }
+      .custom-marker svg { width: 22px; height: 22px; }
     }
   </style>
 </head>
+
 <body>
   <header>
     <h1>Grove Street Greenway Map</h1>
@@ -299,7 +313,7 @@
   ></script>
 
   <script>
-    // ---------- Base map ----------
+    // ---------- Base map (Carto only; no toggle menu) ----------
     const lightBase = L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
       {
@@ -310,7 +324,7 @@
     );
 
     const map = L.map("map", {
-      center: [40.84, -74.20], // placeholder; will be overridden by Grove bounds
+      center: [40.84, -74.20], // placeholder; will be overridden by bounds
       zoom: 13,
       layers: [lightBase],
       zoomControl: true,
@@ -331,32 +345,22 @@
     map.getPane("schoolsPane").style.zIndex = 440;
 
     let overallBounds = L.latLngBounds();
-    let groveBounds = L.latLngBounds(); // for Grove Street Greenway focus
-
+    let groveBounds = L.latLngBounds(); // for Grove + Elm/Orange focus
     const overlayGroups = {}; // name -> L.LayerGroup
 
-    // ---------- Helper functions ----------
-
+    // ---------- Helpers ----------
     function extendOverallBounds(layer) {
       try {
         const b = layer.getBounds ? layer.getBounds() : null;
-        if (b && b.isValid()) {
-          overallBounds.extend(b);
-        }
-      } catch (e) {
-        // Ignore
-      }
+        if (b && b.isValid()) overallBounds.extend(b);
+      } catch (e) {}
     }
 
     function extendGroveBounds(layer) {
       try {
         const b = layer.getBounds ? layer.getBounds() : null;
-        if (b && b.isValid()) {
-          groveBounds.extend(b);
-        }
-      } catch (e) {
-        // Ignore
-      }
+        if (b && b.isValid()) groveBounds.extend(b);
+      } catch (e) {}
     }
 
     function bindBasicPopup(feature, layer, fallbackTitle) {
@@ -374,23 +378,17 @@
     function setLayerVisibility(name, visible) {
       const group = overlayGroups[name];
       if (!group) return;
-      if (visible) {
-        map.addLayer(group);
-      } else {
-        map.removeLayer(group);
-      }
+      if (visible) map.addLayer(group);
+      else map.removeLayer(group);
     }
 
-    // ---------- Vector icons (SVG via divIcon) ----------
-
+    // ---------- SVG marker icons ----------
     const parkIcon = L.divIcon({
       className: "",
       html: `
         <div class="custom-marker custom-marker-park">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <!-- Trunk -->
             <rect x="10.5" y="12" width="3" height="7" rx="1" ry="1" fill="currentColor" />
-            <!-- Canopy: layered circles for a fuller tree -->
             <circle cx="12" cy="10" r="4.5" fill="currentColor" />
             <circle cx="9" cy="10.5" r="3" fill="currentColor" />
             <circle cx="15" cy="10.5" r="3" fill="currentColor" />
@@ -407,34 +405,18 @@
       html: `
         <div class="custom-marker custom-marker-school">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <!-- Roof (slightly narrower) -->
             <polygon points="6,11 12,5 18,11" fill="currentColor" />
-
-            <!-- Left wing (narrower) -->
             <rect x="5" y="11" width="3" height="7" fill="currentColor" />
-            <!-- Right wing (narrower) -->
             <rect x="16" y="11" width="3" height="7" fill="currentColor" />
-
-            <!-- Center tower (narrower) -->
             <rect x="10" y="10" width="4" height="9" fill="currentColor" />
-
-            <!-- Clock face -->
             <circle cx="12" cy="12.4" r="1.4" fill="#ffffff" />
-
-            <!-- Clock hands -->
             <line x1="12" y1="12.4" x2="12" y2="11.3"
                   stroke="currentColor" stroke-width="0.7" stroke-linecap="round" />
             <line x1="12" y1="12.4" x2="13.1" y2="12.4"
                   stroke="currentColor" stroke-width="0.7" stroke-linecap="round" />
-
-            <!-- Door -->
             <rect x="11.1" y="15" width="1.8" height="4" fill="#ffffff" rx="0.5" />
-
-            <!-- Wing windows -->
-            <rect x="5.3"  y="12.5" width="2.4" height="1.4"
-                  fill="#ffffff" opacity="0.85" />
-            <rect x="16.3" y="12.5" width="2.4" height="1.4"
-                  fill="#ffffff" opacity="0.85" />
+            <rect x="5.3"  y="12.5" width="2.4" height="1.4" fill="#ffffff" opacity="0.85" />
+            <rect x="16.3" y="12.5" width="2.4" height="1.4" fill="#ffffff" opacity="0.85" />
           </svg>
         </div>
       `,
@@ -482,11 +464,8 @@
       html: `
         <div class="custom-marker custom-marker-grocery">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <!-- Cart basket -->
             <rect x="6" y="9" width="11" height="6" rx="1" ry="1" fill="currentColor" />
-            <!-- Handle -->
             <line x1="6" y1="9" x2="4" y2="5" stroke="currentColor" stroke-width="1.5" />
-            <!-- Wheels -->
             <circle cx="9" cy="17" r="1.5" fill="currentColor" />
             <circle cx="15" cy="17" r="1.5" fill="currentColor" />
           </svg>
@@ -502,11 +481,8 @@
       html: `
         <div class="custom-marker custom-marker-library">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <!-- Closed book -->
             <rect x="6" y="5" width="6" height="14" rx="1" ry="1" fill="currentColor" />
-            <!-- Pages hint -->
             <rect x="7" y="6" width="4" height="12" fill="#ffffff" opacity="0.8" />
-            <!-- Second book/spine -->
             <rect x="12" y="7" width="5" height="12" rx="1" ry="1"
                   fill="currentColor" opacity="0.85" />
           </svg>
@@ -517,33 +493,24 @@
       popupAnchor: [0, -13],
     });
 
-    // ---------- Point styling ----------
-
-    // Points of Interest (grocery, library, hospital, etc.)
+    // ---------- Point layer renderers ----------
     function poiPointToLayer(feature, latlng) {
       const props = feature.properties || {};
       const cat = (props.category || "").toLowerCase();
 
-      if (cat === "hospital") {
-        return L.marker(latlng, { icon: hospitalIcon, pane: "poiPane" });
-      }
-      if (cat === "grocery") {
-        return L.marker(latlng, { icon: groceryIcon, pane: "poiPane" });
-      }
-      if (cat === "library") {
-        return L.marker(latlng, { icon: libraryIcon, pane: "poiPane" });
-      }
+      if (cat === "hospital") return L.marker(latlng, { icon: hospitalIcon, pane: "poiPane" });
+      if (cat === "grocery")  return L.marker(latlng, { icon: groceryIcon, pane: "poiPane" });  // purple by CSS
+      if (cat === "library")  return L.marker(latlng, { icon: libraryIcon, pane: "poiPane" });  // purple by CSS
 
-      // Fallback / mixed-use / other POIs as purple dots
       const styles = getComputedStyle(document.documentElement);
-      let fill = styles.getPropertyValue("--accent-purple") || "#6a3d9a";
+      const fill = (styles.getPropertyValue("--accent-purple") || "#6a3d9a").trim();
 
       return L.circleMarker(latlng, {
         pane: "poiPane",
         radius: 7,
         weight: 1.5,
         color: "#ffffff",
-        fillColor: (fill && fill.trim()) || fill,
+        fillColor: fill,
         fillOpacity: 0.95,
       });
     }
@@ -567,28 +534,23 @@
       layer.bindPopup(html);
     }
 
-    // Parks
     function parkPointToLayer(feature, latlng) {
       return L.marker(latlng, { icon: parkIcon, pane: "parksPane" });
     }
-
     function parkOnEachFeature(feature, layer) {
       const props = feature.properties || {};
       const title = `🌳 ${props.name || "Park"}`;
       const address = props.address;
       const notes = props.notes || props.entrance_description || "";
-
       let html = `<h3>${title}</h3>`;
       if (address) html += `<p>${address}</p>`;
       if (notes) html += `<p>${notes}</p>`;
       layer.bindPopup(html);
     }
 
-    // Schools
     function schoolPointToLayer(feature, latlng) {
       return L.marker(latlng, { icon: schoolIcon, pane: "schoolsPane" });
     }
-
     function schoolOnEachFeature(feature, layer) {
       const props = feature.properties || {};
       const title = `🏫 ${props.name || "School"}`;
@@ -596,34 +558,26 @@
       const level = props.level;
       const grades = props.grades;
       const notes = props.notes || "";
-
       let html = `<h3>${title}</h3>`;
       if (address) html += `<p>${address}</p>`;
-      if (level || grades) {
-        html += `<p>${[level, grades].filter(Boolean).join(" • ")}</p>`;
-      }
+      if (level || grades) html += `<p>${[level, grades].filter(Boolean).join(" • ")}</p>`;
       if (notes) html += `<p>${notes}</p>`;
       layer.bindPopup(html);
     }
 
-    // Transit
     function transitPointToLayer(feature, latlng) {
       return L.marker(latlng, { icon: transitIcon, pane: "transitPane" });
     }
-
     function transitOnEachFeature(feature, layer) {
       const props = feature.properties || {};
       const mode = (props.mode || "").toLowerCase();
       const line = props.line;
       let emoji = "🚆";
-
       if (mode.includes("bus")) emoji = "🚌";
       if (mode.includes("light_rail")) emoji = "🚈";
-
       const title = `${emoji} ${props.name || "Transit stop"}`;
       const address = props.address;
       const notes = props.notes || "";
-
       let html = `<h3>${title}</h3>`;
       if (line) html += `<p>${line}</p>`;
       if (address) html += `<p>${address}</p>`;
@@ -631,104 +585,41 @@
       layer.bindPopup(html);
     }
 
-    // Generic line style builder
     function makeLineStyle(color, weight, dashArray, opacity) {
-      return {
-        color,
-        weight,
-        dashArray: dashArray || null,
-        opacity: opacity != null ? opacity : 0.9,
-      };
+      return { color, weight, dashArray: dashArray || null, opacity: opacity ?? 0.9 };
     }
 
     // ---------- Layer configuration ----------
-
     const layerConfigs = [
-      {
-        name: "Grove Street Greenway",
-        key: "grove-main",
-        file: "grove-street-greenway.geojson",
-        kind: "grove",
-      },
-      {
-        name: "Elm + Orange Extension (South End Connector)",
-        key: "grove-elm-orange",
-        file: "MTC_Orang-Elm-Extension.geojson",
-        kind: "grove",
-      },
-      {
-        name: "Essex–Hudson Greenway",
-        key: "ehg",
-        file: "essex-hudson-greenway.geojson",
-        kind: "line",
-        colorVariable: "--accent-teal",
-        fallbackColor: "#1f9fb5",
-        weight: 4,
-      },
-      {
-        name: "Lenape Trail",
-        key: "lenape",
-        file: "Lenape-trail.geojson",
-        kind: "line",
-        colorVariable: "--accent-yellow",
-        fallbackColor: "#f6c915",
-        weight: 3,
-        dashArray: "6 4",
-        defaultOn: false, // OFF by default
-      },
-      {
-        name: "Morris Canal Greenway (Proposed)",
-        key: "morris",
-        file: "Morris-Canal.geojson",
-        kind: "line",
-        colorVariable: "--accent-teal",
-        fallbackColor: "#1f9fb5",
-        weight: 3,
-        dashArray: "4 4",
-        defaultOn: false, // OFF by default
-      },
-      {
-        name: "Montclair Transit Hubs",
-        key: "transit",
-        file: "montclair_transit.geojson",
-        kind: "transit",
-      },
-      {
-        name: "Montclair Points of Interest",
-        key: "pois",
-        file: "mtc-points-of-interest.geojson",
-        kind: "poi",
-      },
-      {
-        name: "Montclair Parks",
-        key: "parks",
-        file: "mtc-parks.geojson",
-        kind: "parks",
-      },
-      {
-        name: "Montclair Schools",
-        key: "schools",
-        file: "mtc_schools.geojson",
-        kind: "schools",
-      }
+      { name: "Grove Street Greenway", file: "grove-street-greenway.geojson", kind: "grove", defaultOn: true },
+      { name: "Elm + Orange Extension (South End Connector)", file: "MTC_Orang-Elm-Extension.geojson", kind: "grove", defaultOn: true },
+
+      { name: "Essex–Hudson Greenway", file: "essex-hudson-greenway.geojson", kind: "line",
+        colorVariable: "--accent-teal", fallbackColor: "#1f9fb5", weight: 4, defaultOn: true },
+
+      { name: "Lenape Trail", file: "Lenape-trail.geojson", kind: "line",
+        colorVariable: "--accent-yellow", fallbackColor: "#f6c915", weight: 3, dashArray: "6 4", defaultOn: false },
+
+      { name: "Morris Canal Greenway (Proposed)", file: "Morris-Canal.geojson", kind: "line",
+        colorVariable: "--accent-teal", fallbackColor: "#1f9fb5", weight: 3, dashArray: "4 4", defaultOn: false },
+
+      { name: "Montclair Transit Hubs", file: "montclair_transit.geojson", kind: "transit", defaultOn: true },
+      { name: "Montclair Parks", file: "mtc-parks.geojson", kind: "parks", defaultOn: true },
+      { name: "Montclair Schools", file: "mtc_schools.geojson", kind: "schools", defaultOn: true },
+      { name: "Montclair Points of Interest", file: "mtc-points-of-interest.geojson", kind: "poi", defaultOn: true }
+      // South End Business District: assumed merged into POIs; no separate toggle.
     ];
 
-    // Pre-create groups
+    // Pre-create groups + set defaults
     layerConfigs.forEach(cfg => {
       overlayGroups[cfg.name] = L.layerGroup();
-      if (cfg.defaultOn !== false) {
-        overlayGroups[cfg.name].addTo(map);
-      }
+      if (cfg.defaultOn) overlayGroups[cfg.name].addTo(map);
     });
 
     // ---------- Combined Layers + Legend Control ----------
-
     const LayersLegendControl = L.Control.extend({
-      options: {
-        position: "topright"
-      },
-
-      onAdd: function(map) {
+      options: { position: "topright" },
+      onAdd: function() {
         const container = L.DomUtil.create("div", "layers-legend-control leaflet-bar");
 
         const header = L.DomUtil.create("div", "layers-legend-header", container);
@@ -740,66 +631,65 @@
 
         const body = L.DomUtil.create("div", "layers-legend-body", container);
 
-        // Prevent map interactions when using the panel
         L.DomEvent.disableClickPropagation(container);
         L.DomEvent.disableScrollPropagation(container);
 
-        // Sections
+        // Network
         const linesLabel = L.DomUtil.create("div", "layer-section-label", body);
         linesLabel.textContent = "Network";
 
-        const lineLayers = [
-          { cfgName: "Grove Street Greenway", cssClass: "grove-main", text: "Grove Greenway" },
-          { cfgName: "Elm + Orange Extension (South End Connector)", cssClass: "grove-elm-orange", text: "Elm/Orange (concept)" },
-          { cfgName: "Essex–Hudson Greenway", cssClass: "trail-teal", text: "Essex–Hudson Greenway" },
-          { cfgName: "Lenape Trail", cssClass: "trail-yellow dashed", text: "Lenape Trail" },
-          { cfgName: "Morris Canal Greenway (Proposed)", cssClass: "trail-teal dashed", text: "Morris Canal (proposed)" }
+        const lineRows = [
+          { name: "Grove Street Greenway", symbolClass: "layer-symbol-line line-grove-main", label: "Grove Greenway", dashed: false },
+          { name: "Elm + Orange Extension (South End Connector)", symbolClass: "layer-symbol-line line-grove-elm", label: "Elm/Orange (concept)", dashed: false },
+          { name: "Essex–Hudson Greenway", symbolClass: "layer-symbol-line line-teal", label: "Essex–Hudson Greenway", dashed: false },
+          { name: "Lenape Trail", symbolClass: "layer-symbol-line line-yellow is-dashed", label: "Lenape Trail", dashed: true },
+          { name: "Morris Canal Greenway (Proposed)", symbolClass: "layer-symbol-line line-teal is-dashed", label: "Morris Canal (proposed)", dashed: true }
         ];
 
-        lineLayers.forEach(layerInfo => {
+        lineRows.forEach(r => {
           const row = L.DomUtil.create("label", "layer-row", body);
           const input = L.DomUtil.create("input", "", row);
           input.type = "checkbox";
-          input.checked = (layerConfigs.find(c => c.name === layerInfo.cfgName)?.defaultOn !== false);
-          input.dataset.layerName = layerInfo.cfgName;
+          input.checked = !!layerConfigs.find(c => c.name === r.name)?.defaultOn;
+          input.dataset.layerName = r.name;
 
-          const symbol = L.DomUtil.create("span", "layer-symbol layer-symbol-line " + layerInfo.cssClass, row);
+          L.DomUtil.create("span", "layer-symbol " + r.symbolClass, row);
           const labelSpan = L.DomUtil.create("span", "layer-label", row);
-          labelSpan.textContent = layerInfo.text;
+          labelSpan.textContent = r.label;
         });
 
-        const pointsLabel = L.DomUtil.create("div", "layer-section-label", body);
-        pointsLabel.textContent = "Places";
+        // Places
+        const placesLabel = L.DomUtil.create("div", "layer-section-label", body);
+        placesLabel.textContent = "Places";
 
-        const pointLayers = [
-          { cfgName: "Montclair Transit Hubs", cssClass: "dot-transit", text: "Transit hubs" },
-          { cfgName: "Montclair Parks", cssClass: "dot-park", text: "Parks" },
-          { cfgName: "Montclair Schools", cssClass: "dot-school", text: "Schools" },
-          { cfgName: "Montclair Points of Interest", cssClass: "dot-poi", text: "Points of interest" }
+        const placeRows = [
+          { name: "Montclair Transit Hubs", symbolClass: "layer-symbol-dot dot-transit", label: "Transit hubs" },
+          { name: "Montclair Parks", symbolClass: "layer-symbol-dot dot-park", label: "Parks" },
+          { name: "Montclair Schools", symbolClass: "layer-symbol-dot dot-school", label: "Schools" },
+          { name: "Montclair Points of Interest", symbolClass: "layer-symbol-dot dot-poi", label: "Points of interest (incl. grocery)" }
         ];
 
-        pointLayers.forEach(layerInfo => {
+        placeRows.forEach(r => {
           const row = L.DomUtil.create("label", "layer-row", body);
           const input = L.DomUtil.create("input", "", row);
           input.type = "checkbox";
-          input.checked = (layerConfigs.find(c => c.name === layerInfo.cfgName)?.defaultOn !== false);
-          input.dataset.layerName = layerInfo.cfgName;
+          input.checked = !!layerConfigs.find(c => c.name === r.name)?.defaultOn;
+          input.dataset.layerName = r.name;
 
-          const symbol = L.DomUtil.create("span", "layer-symbol layer-symbol-dot " + layerInfo.cssClass, row);
+          L.DomUtil.create("span", "layer-symbol " + r.symbolClass, row);
           const labelSpan = L.DomUtil.create("span", "layer-label", row);
-          labelSpan.textContent = layerInfo.text;
+          labelSpan.textContent = r.label;
         });
 
-        // Wire up the checkboxes
-        const inputs = container.querySelectorAll("input[type='checkbox']");
-        inputs.forEach(input => {
+        // Wire up toggles
+        container.querySelectorAll("input[type='checkbox']").forEach(input => {
           input.addEventListener("change", (e) => {
             const name = e.target.dataset.layerName;
             setLayerVisibility(name, e.target.checked);
           });
         });
 
-        // Collapse / expand behavior
+        // Collapse/expand via header (icon stays visible)
         header.addEventListener("click", () => {
           container.classList.toggle("collapsed");
         });
@@ -808,75 +698,42 @@
       }
     });
 
-    const layersLegendControl = new LayersLegendControl();
-    map.addControl(layersLegendControl);
+    map.addControl(new LayersLegendControl());
 
     // ---------- Load layers ----------
-
     const promises = [];
 
     layerConfigs.forEach((cfg) => {
       const group = overlayGroups[cfg.name];
 
-      const promise = fetch(cfg.file)
-        .then((resp) => resp.json())
-        .then((geojson) => {
-          let opts = {};
-
+      const p = fetch(cfg.file)
+        .then(resp => resp.json())
+        .then(geojson => {
           if (cfg.kind === "grove") {
-            // Grove-style halo + core green line
-            const rootStyles = getComputedStyle(
-              document.documentElement
-            );
+            const styles = getComputedStyle(document.documentElement);
+            const groveGreen = (styles.getPropertyValue("--grove-green").trim() || "#2ca25f");
+            const groveGreenProposed = (styles.getPropertyValue("--grove-green-proposed").trim() || "#1b7a3a");
+            const haloColor = (styles.getPropertyValue("--grove-green-halo").trim() || "#c7e9c0");
 
-            const groveGreen =
-              rootStyles.getPropertyValue("--grove-green").trim() || "#2ca25f";
-            const groveGreenProposed =
-              rootStyles
-                .getPropertyValue("--grove-green-proposed")
-                .trim() || "#1b7a3a";
-            const haloColor =
-              rootStyles
-                .getPropertyValue("--grove-green-halo")
-                .trim() || "#c7e9c0";
-
-            const isElmOrange =
-              cfg.name.indexOf("Elm + Orange Extension") !== -1 ||
-              cfg.name.indexOf("Elm/Orange") !== -1;
-
+            const isElmOrange = cfg.name.includes("Elm + Orange");
             const coreColor = isElmOrange ? groveGreenProposed : groveGreen;
-            const coreOpacity = isElmOrange ? 0.75 : 0.95; // ~25% transparent vs Grove
-            const haloOpacity = isElmOrange ? 0.45 : 0.55;
-            const haloWeight = isElmOrange ? 8 : 10;
-            const coreWeight = 6;
 
-            // Halo layer
+            const isMobile = window.matchMedia("(max-width: 640px)").matches;
+            const coreOpacity = isElmOrange ? 0.75 : 0.95;
+            const haloOpacity = isElmOrange ? 0.45 : 0.55;
+
+            const haloWeight = isMobile ? (isElmOrange ? 10 : 12) : (isElmOrange ? 8 : 10);
+            const coreWeight = isMobile ? 7 : 6;
+
             const haloLayer = L.geoJSON(geojson, {
-              filter: (f) =>
-                f.geometry &&
-                (f.geometry.type === "LineString" ||
-                  f.geometry.type === "MultiLineString"),
-              style: {
-                color: haloColor,
-                weight: haloWeight,
-                opacity: haloOpacity,
-              },
+              filter: f => f.geometry && (f.geometry.type === "LineString" || f.geometry.type === "MultiLineString"),
+              style: { color: haloColor, weight: haloWeight, opacity: haloOpacity }
             });
 
-            // Core green line
             const coreLayer = L.geoJSON(geojson, {
-              filter: (f) =>
-                f.geometry &&
-                (f.geometry.type === "LineString" ||
-                  f.geometry.type === "MultiLineString"),
-              style: {
-                color: coreColor,
-                weight: coreWeight,
-                opacity: coreOpacity,
-              },
-              onEachFeature: (feature, layer) => {
-                bindBasicPopup(feature, layer, cfg.name);
-              },
+              filter: f => f.geometry && (f.geometry.type === "LineString" || f.geometry.type === "MultiLineString"),
+              style: { color: coreColor, weight: coreWeight, opacity: coreOpacity },
+              onEachFeature: (feature, layer) => bindBasicPopup(feature, layer, cfg.name)
             });
 
             haloLayer.addTo(group);
@@ -884,7 +741,6 @@
 
             // Center on Grove + Elm/Orange together
             extendGroveBounds(coreLayer);
-
             extendOverallBounds(coreLayer);
 
             return;
@@ -892,79 +748,48 @@
 
           if (cfg.kind === "line") {
             const colorVar = cfg.colorVariable
-              ? getComputedStyle(document.documentElement).getPropertyValue(
-                  cfg.colorVariable
-                )
+              ? getComputedStyle(document.documentElement).getPropertyValue(cfg.colorVariable)
               : "";
-            const lineColor =
-              (colorVar && colorVar.trim()) ||
-              cfg.fallbackColor ||
-              "#1f9fb5";
+            const lineColor = (colorVar && colorVar.trim()) || cfg.fallbackColor || "#1f9fb5";
 
-            const opacity = 0.9;
+            const lineLayer = L.geoJSON(geojson, {
+              style: () => makeLineStyle(lineColor, cfg.weight || 3, cfg.dashArray, 0.9),
+              onEachFeature: (feature, layer) => bindBasicPopup(feature, layer, cfg.name),
+            }).addTo(group);
 
-            opts = {
-              style: () =>
-                makeLineStyle(lineColor, cfg.weight || 3, cfg.dashArray, opacity),
-              onEachFeature: (feature, layer) => {
-                bindBasicPopup(feature, layer, cfg.name);
-              },
-            };
-
-            const lineLayer = L.geoJSON(geojson, opts).addTo(group);
             extendOverallBounds(lineLayer);
             return;
           }
 
+          // point layers
+          let opts = {};
           if (cfg.kind === "poi") {
-            opts = {
-              pointToLayer: poiPointToLayer,
-              onEachFeature: poiOnEachFeature,
-            };
+            opts = { pointToLayer: poiPointToLayer, onEachFeature: poiOnEachFeature };
           } else if (cfg.kind === "parks") {
-            opts = {
-              pointToLayer: parkPointToLayer,
-              onEachFeature: parkOnEachFeature,
-            };
+            opts = { pointToLayer: parkPointToLayer, onEachFeature: parkOnEachFeature };
           } else if (cfg.kind === "schools") {
-            opts = {
-              pointToLayer: schoolPointToLayer,
-              onEachFeature: schoolOnEachFeature,
-            };
+            opts = { pointToLayer: schoolPointToLayer, onEachFeature: schoolOnEachFeature };
           } else if (cfg.kind === "transit") {
-            opts = {
-              pointToLayer: transitPointToLayer,
-              onEachFeature: transitOnEachFeature,
-            };
+            opts = { pointToLayer: transitPointToLayer, onEachFeature: transitOnEachFeature };
           }
 
           const layer = L.geoJSON(geojson, opts).addTo(group);
           extendOverallBounds(layer);
         })
-        .catch((err) => {
-          console.error(`Failed to load ${cfg.file}`, err);
-        });
+        .catch(err => console.error(`Failed to load ${cfg.file}`, err));
 
-      promises.push(promise);
+      promises.push(p);
     });
 
     Promise.all(promises).then(() => {
-      // Prefer fitting to Grove Street Greenway; fall back to all layers if needed
-      if (groveBounds.isValid()) {
-        map.fitBounds(groveBounds.pad(0.08));
-      } else if (overallBounds.isValid()) {
-        map.fitBounds(overallBounds.pad(0.08));
-      }
+      // Prefer fitting to Grove (+ Elm/Orange); fall back to all layers if needed
+      if (groveBounds.isValid()) map.fitBounds(groveBounds.pad(0.10));
+      else if (overallBounds.isValid()) map.fitBounds(overallBounds.pad(0.08));
     });
 
-    // ---------- Notes ----------
-    // - For local testing, run a simple static server in this folder:
-    //     python -m http.server 8000
-    //   then open: http://localhost:8000
-    //
-    // - To embed in Google Sites:
-    //     1. Host this file + GeoJSON on GitHub Pages / Netlify / etc.
-    //     2. Use "Embed" -> "By URL" and paste the map page URL.
+    // Local testing:
+    // python -m http.server 8000
+    // then open http://localhost:8000
   </script>
 </body>
 </html>
