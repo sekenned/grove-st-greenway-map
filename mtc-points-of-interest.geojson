@@ -1,99 +1,120 @@
 {
-  "type": "FeatureCollection",
-  "name": "montclair_points_of_interest",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "ShopRite of Brookdale",
-        "address": "1409 Broad St, Bloomfield, NJ 07003",
-        "category": "grocery",
-        "notes": "Regional supermarket serving northern Montclair/Brookdale area."
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.183843, 40.837132]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "ACME Markets (Upper Montclair)",
-        "address": "510 Valley Rd, Montclair, NJ 07043",
-        "category": "grocery",
-        "notes": "Upper Montclair neighborhood supermarket on Valley Road."
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.207764, 40.837206]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Lackawanna Plaza",
-        "address": "26 Lackawanna Plaza, Montclair, NJ 07042",
-        "category": "grocery",
-        "notes": "Historic former rail terminal and surrounding plaza in Montclair Center."
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.213944, 40.810972]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Hackensack Meridian Mountainside Medical Center",
-        "address": "1 Bay Ave, Montclair, NJ 07042",
-        "category": "hospital",
-        "notes": "Major local hospital at Bay Avenue and Highland Avenue."
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.204000, 40.812000]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Montclair Public Library – Main Library",
-        "address": "50 S Fullerton Ave, Montclair, NJ 07042",
-        "category": "library",
-        "notes": "Main Montclair Public Library building near downtown Montclair."
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.218650, 40.811650]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Montclair Public Library – Bellevue Avenue Branch",
-        "address": "185 Bellevue Ave, Montclair, NJ 07043",
-        "category": "library",
-        "notes": "Upper Montclair branch library on Bellevue Avenue."
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.205100, 40.840497]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Bloomfield Ave at Church & S Fullerton (Six Corners)",
-        "address": "Bloomfield Ave & S Fullerton Ave, Montclair, NJ 07042",
-        "category": "intersection",
-        "notes": "Approximate location of the Bloomfield Ave / Church St / S Fullerton Ave 'Six Corners' area; please fine-tune if needed."
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-74.21774294396229, 40.81405216994347]
-      }
-    },
-    {
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "ShopRite of Brookdale",
+                "address": "1409 Broad St, Bloomfield, NJ 07003",
+                "category": "grocery",
+                "notes": "Regional supermarket serving northern Montclair/Brookdale area."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -74.183843,
+                    40.837132
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "ACME Markets (Upper Montclair)",
+                "address": "510 Valley Rd, Montclair, NJ 07043",
+                "category": "grocery",
+                "notes": "Upper Montclair neighborhood supermarket on Valley Road."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -74.207764,
+                    40.837206
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Lackawanna Plaza",
+                "address": "26 Lackawanna Plaza, Montclair, NJ 07042",
+                "category": "grocery",
+                "notes": "Historic former rail terminal and surrounding plaza in Montclair Center."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -74.213944,
+                    40.810972
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Hackensack Meridian Mountainside Medical Center",
+                "address": "1 Bay Ave, Montclair, NJ 07042",
+                "category": "hospital",
+                "notes": "Major local hospital at Bay Avenue and Highland Avenue."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -74.204,
+                    40.812
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Montclair Public Library – Main Library",
+                "address": "50 S Fullerton Ave, Montclair, NJ 07042",
+                "category": "library",
+                "notes": "Main Montclair Public Library building near downtown Montclair."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -74.21865,
+                    40.81165
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Montclair Public Library – Bellevue Avenue Branch",
+                "address": "185 Bellevue Ave, Montclair, NJ 07043",
+                "category": "library",
+                "notes": "Upper Montclair branch library on Bellevue Avenue."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -74.2051,
+                    40.840497
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Bloomfield Ave Business District / Downtown Montclair",
+                "address": "Bloomfield Ave & S Fullerton Ave, Montclair, NJ 07042",
+                "category": "intersection",
+                "notes": "Approximate location of the Bloomfield Ave / Church St / S Fullerton Ave 'Six Corners' area; please fine-tune if needed."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -74.21774294396229,
+                    40.81405216994347
+                ]
+            },
+            "id": 6
+        },
+        {
             "type": "Feature",
             "properties": {
                 "name": "South End Business District",
@@ -110,19 +131,76 @@
             }
         },
         {
+            "type": "Feature",
+            "properties": {
+                "name": "Grove Street Business District",
+                "address": "Grove St and Walnut St",
+                "type": "business district",
+                "bike_time_from_grove_min": null
+            },
+            "geometry": {
+                "coordinates": [
+                    -74.20799216384168,
+                    40.81515078913611
+                ],
+                "type": "Point"
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Walnut Street Business District"
+            },
+            "geometry": {
+                "coordinates": [
+                    -74.21129083343428,
+                    40.817285645515966
+                ],
+                "type": "Point"
+            },
+            "id": 9
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Watchung Plaza Business District"
+            },
+            "geometry": {
+                "coordinates": [
+                    -74.20642966473672,
+                    40.83021163301663
+                ],
+                "type": "Point"
+            },
+            "id": 10
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "Upper Montclair Business District",
+                "type": "business district"
+            },
+            "geometry": {
+                "coordinates": [
+                    -74.20808438152802,
+                    40.841152555779615
+                ],
+                "type": "Point"
+            }
+        },
+        {
       "type": "Feature",
       "properties": {
-        "name": "Grove Street Business District",
-        "address": "Grove St and Walnut St",
-        "type": "business district",
-        "bike_time_from_grove_min": null},
+        "name": "Bay St Business District",
+        "type": "business district"
+      },
       "geometry": {
         "coordinates": [
-          -74.20799216384168,
-          40.81515078913611
+          -74.20712462643814,
+          40.80942358602789
         ],
         "type": "Point"
       }
     }
-  ]
+    ]
 }
